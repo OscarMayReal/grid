@@ -13,3 +13,58 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model device {
+    id String @id @default(cuid())
+    type String @default("COMPUTER")
+    name String
+    tenantId String
+    addedBy String
+    addedAt DateTime @default(now())
+    assignedTo String?
+    assignedAt DateTime?
+    os String?
+    osVersion String?
+    architecture String?
+    online Boolean @default(false)
+    changedStatusAt DateTime @default(now())
+    deviceGroupDevices deviceGroupDevice[]
+    deviceToken String @unique @default(cuid())
+}
+
+model Policy {
+    id String @id @default(cuid())
+    name String
+    description String?
+    tenantId String
+    addedBy String
+    addedAt DateTime @default(now())
+    assignedTo String?
+    assignedAt DateTime?
+    type String
+    value String
+    deviceGroupId String
+    deviceGroup DeviceGroup @relation(fields: [deviceGroupId], references: [id])
+}
+
+model DeviceGroup {
+    id String @id @default(cuid())
+    name String
+    description String?
+    tenantId String
+    addedBy String
+    addedAt DateTime @default(now())
+    assignedTo String?
+    assignedAt DateTime?
+    deviceGroupDevices deviceGroupDevice[]
+    policies Policy[]
+}
+
+model deviceGroupDevice {
+    id String @id @default(cuid())
+    deviceGroupId String
+    deviceId String
+    device device @relation(fields: [deviceId], references: [id])
+    deviceGroup DeviceGroup @relation(fields: [deviceGroupId], references: [id])
+    @@unique([deviceGroupId, deviceId])
+}
