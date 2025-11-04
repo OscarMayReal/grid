@@ -1,0 +1,16 @@
+{
+  "name": "grid-agent",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "electron": "^39.0.0",
+    "socket.io-client": "^4.8.1"
+  }
+}
