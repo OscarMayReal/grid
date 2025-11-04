@@ -1,4 +1,5 @@
-import { device, DeviceGroup, PrismaClient } from "./generated/prisma/client";
+import { PrismaClient } from "./generated/prisma/client.ts";
+import type { device, DeviceGroup } from './generated/prisma/client.ts';
 
 const prisma = new PrismaClient();
 
@@ -10,15 +11,15 @@ export async function getDevicesByTenantId(tenantId: string) {
     });
 }
 
-export async function createDevice({device}: {device: device}) {
+export async function createDevice(data: device) {
     return await prisma.device.create({
-        data: device
+        data: data
     });
 }
 
-export async function createDeviceGroup({deviceGroup}: {deviceGroup: DeviceGroup}) {
+export async function createDeviceGroup(data: DeviceGroup) {
     return await prisma.deviceGroup.create({
-        data: deviceGroup
+        data: data
     });
 }
 
@@ -26,6 +27,13 @@ export async function getDeviceGroupsByTenantId(tenantId: string) {
     return await prisma.deviceGroup.findMany({
         where: {
             tenantId: tenantId
+        },
+        include: {
+            _count: {
+                select: {
+                    deviceGroupDevices: true
+                }
+            }
         }
     });
 }
@@ -38,12 +46,12 @@ export function getDeviceGroupById(id: string) {
     });
 }
 
-export function updateDeviceGroup({deviceGroup}: {deviceGroup: DeviceGroup}) {
+export function updateDeviceGroup(data: DeviceGroup) {
     return prisma.deviceGroup.update({
         where: {
-            id: deviceGroup.id
+            id: data.id
         },
-        data: deviceGroup
+        data: data
     });
 }
 
@@ -63,12 +71,12 @@ export function getDeviceById(id: string) {
     });
 }
 
-export function updateDevice({device}: {device: device}) {
+export function updateDevice(data: device) {
     return prisma.device.update({
         where: {
-            id: device.id
+            id: data.id
         },
-        data: device
+        data: data
     });
 }
 
@@ -76,6 +84,38 @@ export function deleteDevice(id: string) {
     return prisma.device.delete({
         where: {
             id: id
+        }
+    });
+}
+
+export function addDeviceToGroup({
+    groupId,
+    deviceId,
+}: {
+    groupId: string;
+    deviceId: string;
+}) {
+    return prisma.deviceGroupDevice.create({
+        data: {
+            deviceGroupId: groupId,
+            deviceId: deviceId,
+        }
+    });
+}
+
+export function removeDeviceFromGroup({
+    groupId,
+    deviceId,
+}: {
+    groupId: string;
+    deviceId: string;
+}) {
+    return prisma.deviceGroupDevice.delete({
+        where: {
+            deviceGroupId_deviceId: {
+                deviceGroupId: groupId,
+                deviceId: deviceId,
+            },
         }
     });
 }

@@ -52,12 +52,11 @@ model DeviceGroup {
     name String
     description String?
     tenantId String
-    addedBy String
-    addedAt DateTime @default(now())
-    assignedTo String?
-    assignedAt DateTime?
     deviceGroupDevices deviceGroupDevice[]
     policies Policy[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now())
+    createdBy String
 }
 
 model deviceGroupDevice {
