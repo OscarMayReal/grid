@@ -1,0 +1,12 @@
+/*
+  Warnings:
+
+  - A unique constraint covering the columns `[name]` on the table `DeviceGroup` will be added. If there are existing duplicate values, this will fail.
+  - A unique constraint covering the columns `[name]` on the table `device` will be added. If there are existing duplicate values, this will fail.
+
+*/
+-- CreateIndex
+CREATE UNIQUE INDEX "DeviceGroup_name_key" ON "DeviceGroup"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "device_name_key" ON "device"("name");

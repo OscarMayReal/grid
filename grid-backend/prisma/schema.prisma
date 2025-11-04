@@ -17,7 +17,7 @@ datasource db {
 model device {
     id String @id @default(cuid())
     type String @default("COMPUTER")
-    name String
+    name String @unique
     tenantId String
     addedBy String
     addedAt DateTime @default(now())
@@ -30,6 +30,7 @@ model device {
     changedStatusAt DateTime @default(now())
     deviceGroupDevices deviceGroupDevice[]
     deviceToken String @unique @default(cuid())
+    displayName String
 }
 
 model Policy {
@@ -49,7 +50,7 @@ model Policy {
 
 model DeviceGroup {
     id String @id @default(cuid())
-    name String
+    name String @unique
     description String?
     tenantId String
     deviceGroupDevices deviceGroupDevice[]
@@ -57,6 +58,7 @@ model DeviceGroup {
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now())
     createdBy String
+    displayName String
 }
 
 model deviceGroupDevice {

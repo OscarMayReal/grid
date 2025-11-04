@@ -119,9 +119,21 @@ function DeviceInfoDrawer({open, setOpen, device, datahook}: {open: boolean, set
     );
 }
 
+export function DeviceItem({device, onClick}: {device: any, onClick?: () => void}) {
+    return (
+        <div className="flex flex-row items-center gap-2" onClick={onClick}>
+            <div>
+                <div style={{fontSize: "16px", fontWeight: "500"}}>{device.displayName}</div>
+                <div style={{fontSize: "12px", color: "var(--qu-text-secondary)"}}>{device.name}</div>
+            </div>
+        </div>
+    );
+}
+
 export function AddDeviceDrawer({open, setOpen, datahook}: {open: boolean, setOpen: (open: boolean) => void, datahook: any}) {
     const auth = useAuth({appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL!});
     const [name, setName] = useState("");
+    const [displayName, setDisplayName] = useState("");
     return (
         <Drawer handleOnly direction="right" open={open} onOpenChange={setOpen}>
             <DrawerTrigger asChild>
@@ -133,7 +145,8 @@ export function AddDeviceDrawer({open, setOpen, datahook}: {open: boolean, setOp
                 </DrawerHeader>
                 <Separator />
                 <div className="drawer-mainarea">
-                    <InputField label="Name" value={name} setValue={setName} />
+                    <PrefixedInput prefix={auth.data?.tenant.name + "/"} label="Name" value={name} setValue={setName} />
+                    <InputField label="Display Name" value={displayName} setValue={setDisplayName} />
                 </div>
                 <Separator />
                 <DrawerFooter style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-end"}}>
@@ -148,6 +161,7 @@ export function AddDeviceDrawer({open, setOpen, datahook}: {open: boolean, setOp
                             },
                             body: JSON.stringify({
                                 name,
+                                displayName,
                             }),
                         });
                         setOpen(false);

@@ -1,7 +1,7 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import { getDeviceById, getDevicesByTenantId, createDevice, updateDevice, getDeviceGroupsByTenantId, createDeviceGroup, getDeviceGroupById, removeDeviceFromGroup } from "./deviceFunctions.ts";
+import { getDeviceById, getDevicesByTenantId, createDevice, updateDevice, getDeviceGroupsByTenantId, createDeviceGroup, getDeviceGroupById, removeDeviceFromGroup, getDeviceByName, addDeviceToGroup } from "./deviceFunctions.ts";
 import { verifySessionMiddleware } from "./middleware.ts";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -33,6 +33,12 @@ io.on("connection", async (socket) => {
         socket.join("device_" + device.id);
         socket.to("device_" + device.id).emit("policies.refresh");
 
+        //policies
+        socket.on("policies.get", async () => {
+            const policies = await getDevicePolicies(device.id);
+            socket.emit("policies.refresh", policies);
+        });
+
         //Disconnect
         socket.on("disconnect", async () => {
             device.online = false;
@@ -55,6 +61,7 @@ app.post("/admin/device", async (req, res) => {
         name: req.body.name,
         tenantId: req.sessionData.tenant.id,
         addedBy: req.sessionData.user.id,
+        displayName: req.body.displayName || req.body.name,
     });
     res.send(device);
 });
@@ -64,12 +71,21 @@ app.get("/admin/devices", async (req, res) => {
     res.send(devices);
 });
 
+app.get("/admin/device/name/:name", async (req, res) => {
+    const device = await getDeviceByName(req.params.name);
+    if (!device) {
+        return res.status(404).send("Device not found");
+    }
+    res.send(device);
+});
+
 //deviceGroups
 app.post("/admin/deviceGroup", async (req, res) => {
     const deviceGroup = await createDeviceGroup({
         name: req.body.name,
         tenantId: req.sessionData.tenant.id,
         createdBy: req.sessionData.user.id,
+        displayName: req.body.displayName || req.body.name,
     });
     res.send(deviceGroup);
 });
@@ -92,8 +108,15 @@ app.post("/admin/deviceGroup/:id/device", async (req, res) => {
     if (!deviceGroup) {
         return res.status(404).send("Device group not found");
     }
-    const devices = await getDevicesByTenantId(req.sessionData.tenant.id);
-    res.send(devices);
+    const device = await getDeviceById(req.body.deviceId);
+    if (!device) {
+        return res.status(404).send("Device not found");
+    }
+    const deviceGroupDevice = await addDeviceToGroup({
+        groupId: req.params.id,
+        deviceId: req.body.deviceId,
+    });
+    res.send(deviceGroupDevice);
 });
 
 app.delete("/admin/deviceGroup/:id/device/:deviceId", async (req, res) => {

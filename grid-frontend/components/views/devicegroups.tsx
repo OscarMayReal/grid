@@ -28,6 +28,9 @@ import { UserItem } from "@/components/header";
 import { ConfirmDialog } from "@/components/confirmDialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { DeviceItem } from "./devices";
+import { DeviceSearchInput } from "../searchInputs";
+import { addDeviceToGroup } from "@/lib/admin";
 
 export function DeviceGroupTable({datahook}: {datahook: any}) {
     const [domains, setDomains] = useState<any>([]);
@@ -47,12 +50,17 @@ export function DeviceGroupTable({datahook}: {datahook: any}) {
                 accessorKey: "name",
             },
             {
-                header: "Device Amount",
+                header: "Device Count",
                 accessorKey: "deviceAmount",
             },
             {
                 header: "Created At",
                 accessorKey: "createdAt",
+                cell: ({row}) => {
+                    return (
+                        <div>{new Date(row.original.createdAt).toLocaleString()}</div>
+                    );
+                },
             },
         ],
         getCoreRowModel: getCoreRowModel(),
@@ -101,6 +109,7 @@ const TableRowWithDrawer = ({row, datahook}: {row: Row<any>, datahook: any}) => 
 }
 
 function DeviceGroupInfoDrawer({open, setOpen, deviceGroup, datahook}: {open: boolean, setOpen: (open: boolean) => void, deviceGroup: any, datahook: any}) {
+    const [deviceGroupDevices, setDeviceGroupDevices] = useState(deviceGroup.deviceGroupDevices)
     return (
         <Drawer handleOnly direction="right" open={open} onOpenChange={setOpen}>
             <DrawerContent>
@@ -110,7 +119,24 @@ function DeviceGroupInfoDrawer({open, setOpen, deviceGroup, datahook}: {open: bo
                 </DrawerHeader>
                 <Separator />
                 <div className="drawer-mainarea">
+                    <div style={{fontSize: "20px", fontWeight: "500", marginLeft: "20px", marginTop: "20px"}}>Group Info</div>
+                    <div style={{fontSize: "14px", fontWeight: "500", marginLeft: "20px", marginTop: "0px", color: "var(--qu-text-secondary)"}}>Information about this device group</div>
                     <CopyValueRow value={deviceGroup.id} title="Device Group ID" />
+
+                    <Separator style={{marginTop: "25px"}} />
+                    <div style={{fontSize: "20px", fontWeight: "500", marginLeft: "20px", marginTop: "20px"}}>Devices</div>
+                    <div style={{fontSize: "14px", fontWeight: "500", marginLeft: "20px", marginTop: "0px", color: "var(--qu-text-secondary)"}}>Devices in this group</div>
+                    <DeviceSearchInput onDeviceSelect={async (device) => {
+                        console.log(device);
+                        const newdevice = await addDeviceToGroup(device.id, deviceGroup.id);
+                        console.log(newdevice);
+                        setDeviceGroupDevices([...deviceGroupDevices, newdevice]);
+                    }} />
+                    <div className="item-list-holder">
+                        {deviceGroupDevices.map((deviceGroupDevice: any) => (
+                            <DeviceItem key={deviceGroupDevice.id} device={deviceGroupDevice.device} />
+                        ))}
+                    </div>
                 </div>
                 <Separator />
                 <DrawerFooter style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-end"}}>
@@ -122,6 +148,7 @@ function DeviceGroupInfoDrawer({open, setOpen, deviceGroup, datahook}: {open: bo
 }
 
 export function AddDeviceGroupDrawer({open, setOpen, datahook}: {open: boolean, setOpen: (open: boolean) => void, datahook: any}) {
+    const [displayName, setDisplayName] = useState("");
     const auth = useAuth({appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL!});
     const [name, setName] = useState("");
     return (
@@ -135,7 +162,8 @@ export function AddDeviceGroupDrawer({open, setOpen, datahook}: {open: boolean, 
                 </DrawerHeader>
                 <Separator />
                 <div className="drawer-mainarea">
-                    <InputField label="Name" value={name} setValue={setName} />
+                    <PrefixedInput prefix={auth.data?.tenant.name + "/"} label="Name" value={name} setValue={setName} />
+                    <InputField label="Display Name" value={displayName} setValue={setDisplayName} />
                 </div>
                 <Separator />
                 <DrawerFooter style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-end"}}>
@@ -150,6 +178,7 @@ export function AddDeviceGroupDrawer({open, setOpen, datahook}: {open: boolean, 
                             },
                             body: JSON.stringify({
                                 name,
+                                displayName,
                             }),
                         });
                         setOpen(false);

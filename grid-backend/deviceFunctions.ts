@@ -33,7 +33,20 @@ export async function getDeviceGroupsByTenantId(tenantId: string) {
                 select: {
                     deviceGroupDevices: true
                 }
+            },
+            deviceGroupDevices: {
+                include: {
+                    device: true
+                }
             }
+        }
+    });
+}
+
+export async function getDeviceByName(name: string) {
+    return await prisma.device.findUnique({
+        where: {
+            name: name
         }
     });
 }
@@ -88,17 +101,20 @@ export function deleteDevice(id: string) {
     });
 }
 
-export function addDeviceToGroup({
+export async function addDeviceToGroup({
     groupId,
     deviceId,
 }: {
     groupId: string;
     deviceId: string;
 }) {
-    return prisma.deviceGroupDevice.create({
+    return await prisma.deviceGroupDevice.create({
         data: {
             deviceGroupId: groupId,
             deviceId: deviceId,
+        },
+        include: {
+            device: true
         }
     });
 }
