@@ -46,6 +46,7 @@ model Policy {
     value String
     deviceGroupId String
     deviceGroup DeviceGroup @relation(fields: [deviceGroupId], references: [id])
+    enabled Boolean @default(true)
 }
 
 model DeviceGroup {
@@ -68,4 +69,17 @@ model deviceGroupDevice {
     device device @relation(fields: [deviceId], references: [id])
     deviceGroup DeviceGroup @relation(fields: [deviceGroupId], references: [id])
     @@unique([deviceGroupId, deviceId])
+}
+
+model Solution {
+    id String @id @default(cuid())
+    description String?
+    availableForStore Boolean @default(false)
+    packages String[]
+    addScript String
+    removeScript String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now())
+    createdBy String
+    displayName String
 }

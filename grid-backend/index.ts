@@ -5,6 +5,7 @@ import { getDeviceById, getDevicesByTenantId, createDevice, updateDevice, getDev
 import { verifySessionMiddleware } from "./middleware.ts";
 import cors from "cors";
 import dotenv from "dotenv";
+import { createPolicy, deletePolicy, getDevicePolicies, getPoliciesByTenantId, getPolicyById, updatePolicy } from "./policyFunctions.ts";
 dotenv.config();
 
 const app = express();
@@ -29,22 +30,38 @@ io.on("connection", async (socket) => {
         }
         device.online = true;
         device.changedStatusAt = new Date();
-        await updateDevice(device);
+        var savedevice = structuredClone(device);
+        savedevice.deviceGroupDevices = undefined;
+        await updateDevice(savedevice);
+        console.log("device connected: " + device.id);
         socket.join("device_" + device.id);
-        socket.to("device_" + device.id).emit("policies.refresh");
-
+        device.deviceGroupDevices.forEach((deviceGroupDevice) => {
+            socket.join("group_" + deviceGroupDevice.deviceGroupId);
+        });
+        console.log(socket.rooms);
+        io.in("device_" + device.id).emit("device.connected");
+        
         //policies
-        socket.on("policies.get", async () => {
+        socket.on("policy.get", async (ack) => {
+            console.log("policy.get");
             const policies = await getDevicePolicies(device.id);
-            socket.emit("policies.refresh", policies);
+            // console.log(policies);
+            ack(policies);
         });
 
         //Disconnect
         socket.on("disconnect", async () => {
-            device.online = false;
-            device.changedStatusAt = new Date();
-            await updateDevice(device);
+            var savedevice = structuredClone(device);
+            savedevice.deviceGroupDevices = undefined;
+            savedevice.online = false;
+            savedevice.changedStatusAt = new Date();
+            await updateDevice(savedevice);
         });
+        setTimeout(() => {
+            console.log(socket.rooms);
+            io.in("device_" + device.id).emit("policy.refresh");
+            console.log("policy.refresh");
+        }, 1000);
     } catch (e) {
         console.log(e);
         return socket.disconnect();
@@ -129,6 +146,54 @@ app.delete("/admin/deviceGroup/:id/device/:deviceId", async (req, res) => {
         deviceId: req.params.deviceId,
     });
     res.send(devices);
+});
+
+//policies
+app.get("/admin/policies", async (req, res) => {
+    const policies = await getPoliciesByTenantId(req.sessionData.tenant.id);
+    res.send(policies);
+});
+
+app.post("/admin/policy", async (req, res) => {
+    const policy = await createPolicy({
+        name: req.body.name,
+        tenantId: req.sessionData.tenant.id,
+        addedBy: req.sessionData.user.id,
+        type: req.body.type,
+        description: req.body.description,
+        value: req.body.value,
+        deviceGroup: {
+            connect: {
+                id: req.body.deviceGroupId,
+            },
+        },
+    });
+    res.send(policy);
+    io.to("group_" + req.body.deviceGroupId).emit("policy.refresh");
+});
+
+app.get("/admin/policy/:id", async (req, res) => {
+    const policy = await getPolicyById(req.params.id);
+    if (!policy || policy.tenantId !== req.sessionData.tenant.id) {
+        return res.status(404).send("Policy not found or not authorized");
+    }
+    res.send(policy);
+});
+
+app.put("/admin/policy/:id", async (req, res) => {
+    console.log("Updating Policy")
+    const policy = await getPolicyById(req.params.id);
+    if (!policy || policy.tenantId !== req.sessionData.tenant.id) {
+        return res.status(404).send("Policy not found or not authorized");
+    }
+    const updatedPolicy = await updatePolicy(req.body);
+    res.send(updatedPolicy);
+    io.to("group_" + req.body.deviceGroupId).emit("policy.refresh");
+});
+
+app.delete("/admin/policy/:id", async (req, res) => {
+    const policy = await deletePolicy(req.params.id);
+    res.send(policy);
 });
 
 server.listen(3001, () => {

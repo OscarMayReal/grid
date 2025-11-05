@@ -4,6 +4,7 @@ import { Select, SelectItem, SelectContent, SelectTrigger, SelectValue } from ".
 import { Button } from "./ui/button";
 import { BarcodeIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Switch } from "./ui/switch";
 // import {BarcodeScanner} from '@thewirv/react-barcode-scanner';
 
 export function InputField({label, value, setValue, type, style, autoComplete}: {label: string, value: string, setValue: (value: string) => void, type?: HTMLInputTypeAttribute, style?: React.CSSProperties, autoComplete?: HTMLInputTypeAttribute}) {
@@ -27,7 +28,16 @@ export function PrefixedInput({label, value, setValue, prefix, style}: {label: s
     );
 }
 
-export function SelectInput({label, value, setValue, options, noMargin}: {label: string, value: string, setValue: (value: string) => void, options: {id: string, name: string, description?: string}[], noMargin?: boolean}) {
+export function SwitchInput({label, value, setValue}: {label: string, value: boolean, setValue: (value: boolean) => void}) {
+    return (
+        <div style={{padding: "20px 20px 0px 20px"}} className="flex items-center justify-between">
+            <div style={{fontSize: "14px", fontWeight: "500"}}>{label}</div>
+            <Switch checked={value} onCheckedChange={setValue} />
+        </div>
+    );
+}
+
+export function SelectField({label, value, setValue, options, noMargin}: {label: string, value: string, setValue: (value: string) => void, options: {id: string, name: string, description?: string}[], noMargin?: boolean}) {
     return (
         <div style={noMargin ? {padding: "0px"} : {padding: "20px 20px 0px 20px"}}>
             <div style={{fontSize: "14px", fontWeight: "500", marginBottom: "10px"}}>{label}</div>

@@ -4,7 +4,7 @@ import { useAuth } from "keystone-lib";
 import { usePathname } from "next/navigation";
 import { useWindowSize } from "@/lib/screensize";
 import { Avatar, AvatarFallback } from "./ui/avatar";
-import { ActivityIcon, ArchiveIcon, ArrowUpCircleIcon, GlobeIcon, GroupIcon, LaptopMinimalIcon, PlusIcon, ShieldIcon, ShoppingBagIcon, UsersIcon } from "lucide-react";
+import { ActivityIcon, ArchiveIcon, ArrowUpCircleIcon, GlobeIcon, GroupIcon, LaptopMinimalIcon, PackageIcon, PlusIcon, ShieldIcon, ShoppingBagIcon, UsersIcon } from "lucide-react";
 import { Separator } from "./ui/separator";
 import { HomeIcon } from "lucide-react";
 import { SettingsIcon } from "lucide-react";
@@ -47,11 +47,12 @@ export const AdminSidebar = ({ignoreSize}: {ignoreSize?: boolean}) => {
             <SidebarItem title="Home" onClick={() => {router.push("/admin")}} Icon={HomeIcon} active={path === "/admin"} index={0} />
             <SidebarItem title="All Devices" onClick={() => {router.push("/admin/devices")}} Icon={LaptopMinimalIcon} active={path === "/admin/devices"} index={1} />
             <SidebarItem title="Groups" onClick={() => {router.push("/admin/devicegroups")}} Icon={GroupIcon} active={path === "/admin/devicegroups"} index={2} />
-            <SidebarItem title="Store" onClick={() => {router.push("/admin/store")}} Icon={ShoppingBagIcon} active={path === "/admin/store"} index={3} />
-            <SidebarItem title="Settings" onClick={() => {router.push("/admin/settings")}} Icon={SettingsIcon} active={path === "/admin/settings"} index={4} />
-            <SidebarItem title="Updates" onClick={() => {router.push("/admin/updates")}} Icon={ArrowUpCircleIcon} active={path === "/admin/updates"} index={5} /> 
-            <SidebarItem title="Monitoring" onClick={() => {router.push("/admin/monitoring")}} Icon={ActivityIcon} active={path === "/admin/monitoring"} index={6} />
-            <SidebarItem title="Users" onClick={() => {router.push("/admin/users")}} Icon={UsersIcon} active={path === "/admin/users"} index={7} />
+            <SidebarItem title="Policies" onClick={() => {router.push("/admin/policies")}} Icon={ShieldIcon} active={path === "/admin/policies"} index={3} />
+            <SidebarItem title="Solutions" onClick={() => {router.push("/admin/solutions")}} Icon={PackageIcon} active={path === "/admin/solutions"} index={4} />
+            <SidebarItem title="Settings" onClick={() => {router.push("/admin/settings")}} Icon={SettingsIcon} active={path === "/admin/settings"} index={5} />
+            <SidebarItem title="Updates" onClick={() => {router.push("/admin/updates")}} Icon={ArrowUpCircleIcon} active={path === "/admin/updates"} index={6} /> 
+            <SidebarItem title="Monitoring" onClick={() => {router.push("/admin/monitoring")}} Icon={ActivityIcon} active={path === "/admin/monitoring"} index={7} />
+            <SidebarItem title="Users" onClick={() => {router.push("/admin/users")}} Icon={UsersIcon} active={path === "/admin/users"} index={8} />
             <Separator style={{margin: "10px 0px"}} />
             <SidebarItem title="Access" onClick={() => {router.push("/access")}} Icon={GlobeIcon} active={false} index={8} />
         </div>

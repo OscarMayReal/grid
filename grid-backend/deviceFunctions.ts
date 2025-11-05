@@ -7,6 +7,13 @@ export async function getDevicesByTenantId(tenantId: string) {
     return await prisma.device.findMany({
         where: {
             tenantId: tenantId
+        },
+        include: {
+            deviceGroupDevices: {
+                include: {
+                    deviceGroup: true
+                }
+            }
         }
     });
 }
@@ -55,6 +62,13 @@ export function getDeviceGroupById(id: string) {
     return prisma.deviceGroup.findUnique({
         where: {
             id: id
+        },
+        include: {
+            deviceGroupDevices: {
+                include: {
+                    device: true
+                }
+            }
         }
     });
 }
@@ -80,6 +94,13 @@ export function getDeviceById(id: string) {
     return prisma.device.findUnique({
         where: {
             id: id
+        },
+        include: {
+            deviceGroupDevices: {
+                include: {
+                    deviceGroup: true
+                }
+            }
         }
     });
 }
