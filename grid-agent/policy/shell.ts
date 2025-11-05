@@ -12,5 +12,16 @@ export async function ShellPolicyApplier(policy: any) {
             }
             console.log(stdout);
         });
+    } else if (policy.type === "shell.clockFormat") {
+        const policyContent = await JSON.parse(policy.value);
+        exec("gsettings set org.gnome.desktop.interface clock-format \"" + policyContent.format + "\"", (error: any, stdout: any, stderr: any) => {
+            if (error) {
+                console.error(error);
+            }
+            if (stderr) {
+                console.error(stderr);
+            }
+            console.log(stdout);
+        });
     }
 }
