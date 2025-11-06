@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { BarcodeIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Switch } from "./ui/switch";
+import { Editor } from "@monaco-editor/react";
 // import {BarcodeScanner} from '@thewirv/react-barcode-scanner';
 
 export function InputField({label, value, setValue, type, style, autoComplete}: {label: string, value: string, setValue: (value: string) => void, type?: HTMLInputTypeAttribute, style?: React.CSSProperties, autoComplete?: HTMLInputTypeAttribute}) {
@@ -23,6 +24,21 @@ export function PrefixedInput({label, value, setValue, prefix, style}: {label: s
             <div className="flex items-center border border-input rounded-md shadow-xs bg-background focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px] transition-[color,box-shadow] px-3 h-9 text-base">
                 <span style={{color: "var(--qu-text-secondary)"}} className="select-none text-[14px]">{prefix}</span>
                 <input autoCorrect="off" autoCapitalize="off" type="text" value={value} onChange={(e) => setValue(e.target.value)} className="outline-none text-[14px] w-full" />
+            </div>
+        </div>
+    );
+}
+
+export function MonacoInput({label, value, setValue, style}: {label: string, value: string, setValue: (value: string) => void, style?: React.CSSProperties}) {
+    return (
+        <div style={{padding: "20px 20px 0px 20px", ...style}}>
+            <div style={{fontSize: "14px", fontWeight: "500", marginBottom: "10px"}}>{label}</div>
+            <div className="flex items-center border border-input rounded-md shadow-xs bg-background focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px] overflow-hidden transition-[color,box-shadow] h-[fit-content] text-base">
+                <Editor value={value} width={"100%"} options={{
+                    minimap: {
+                        enabled: false
+                    }
+                }} onChange={(value) => setValue(value)} height="200px" language="json" />
             </div>
         </div>
     );

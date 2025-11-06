@@ -49,8 +49,23 @@ io.on("connection", async (socket) => {
             ack(policies);
         });
 
+        //update device info
+        socket.on("deviceinfo.set", async (data) => {
+            const device = await getDeviceById(socket.handshake.auth.deviceId);
+            if (!device) {
+                return;
+            }
+            device.os = data.os;
+            device.osVersion = data.osVersion;
+            device.architecture = data.architecture;
+            const deviceSaved = structuredClone(device);
+            deviceSaved.deviceGroupDevices = undefined;
+            await updateDevice(deviceSaved);
+        })
+
         //Disconnect
         socket.on("disconnect", async () => {
+            const device = await getDeviceById(socket.handshake.auth.deviceId);
             var savedevice = structuredClone(device);
             savedevice.deviceGroupDevices = undefined;
             savedevice.online = false;
@@ -96,6 +111,18 @@ app.get("/admin/device/name/:name", async (req, res) => {
     res.send(device);
 });
 
+app.post("/admin/device/:id/refreshpolicy", async (req, res) => {
+    const device = await getDeviceById(req.params.id);
+    if (!device) {
+        return res.status(404).send("Device not found");
+    }
+    io.in("device_" + device.id).emit("policy.refresh");
+    res.send({
+        success: true,
+        message: "Policy refreshed",
+    });
+});
+
 //deviceGroups
 app.post("/admin/deviceGroup", async (req, res) => {
     const deviceGroup = await createDeviceGroup({
@@ -105,6 +132,18 @@ app.post("/admin/deviceGroup", async (req, res) => {
         displayName: req.body.displayName || req.body.name,
     });
     res.send(deviceGroup);
+});
+
+app.post("/admin/deviceGroup/:id/refreshpolicy", async (req, res) => {
+    const deviceGroup = await getDeviceGroupById(req.params.id);
+    if (!deviceGroup) {
+        return res.status(404).send("Device group not found");
+    }
+    io.in("group_" + deviceGroup.id).emit("policy.refresh");
+    res.send({
+        success: true,
+        message: "Policy refreshed",
+    });
 });
 
 app.get("/admin/deviceGroups", async (req, res) => {

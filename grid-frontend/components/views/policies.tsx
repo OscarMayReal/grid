@@ -22,12 +22,14 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { CheckIcon, ClipboardCopyIcon, PlusIcon, SaveIcon, SearchIcon, XIcon } from "lucide-react";
-import { InputField, PrefixedInput, SelectField, SwitchInput } from "@/components/fields";
+import { InputField, MonacoInput, PrefixedInput, SelectField, SwitchInput } from "@/components/fields";
 import { useAuth } from "keystone-lib";
 import { UserItem } from "@/components/header";
 import { ConfirmDialog } from "@/components/confirmDialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import Editor, { DiffEditor, useMonaco, loader } from '@monaco-editor/react';
+
 
 export function PolicyTable({datahook}: {datahook: any}) {
     const [policies, setPolicies] = useState<any>([]);
@@ -50,6 +52,15 @@ export function PolicyTable({datahook}: {datahook: any}) {
             {
                 header: "Type",
                 accessorKey: "type",
+            },
+            {
+                header: "Status",
+                accessorKey: "enabled",
+                cell: ({row}) => {
+                    return (
+                        <div>{row.original.enabled ? "Enabled" : "Disabled"}</div>
+                    );
+                },
             },
         ],
         getCoreRowModel: getCoreRowModel(),
@@ -99,6 +110,9 @@ const TableRowWithDrawer = ({row, datahook}: {row: Row<any>, datahook: any}) => 
 
 function PolicyInfoDrawer({open, setOpen, policy, datahook}: {open: boolean, setOpen: (open: boolean) => void, policy: any, datahook: any}) {
     const [value, setValue] = useState(policy.value)
+    const [type, setType] = useState(policy.type)
+    const [name, setName] = useState(policy.name)
+    const [description, setDescription] = useState(policy.description)
     const [policyEnabled, setPolicyEnabled] = useState(policy.enabled)
     const auth = useAuth({appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL!});
     return (
@@ -111,8 +125,11 @@ function PolicyInfoDrawer({open, setOpen, policy, datahook}: {open: boolean, set
                 <Separator />
                 <div className="drawer-mainarea">
                     <CopyValueRow value={policy.id} title="Policy ID" />
-                    <CopyValueRow value={policy.key} title="Policy Key" />
-                    <InputField label="Value" value={value} setValue={setValue} />
+                    <InputField label="Policy Name" value={name} setValue={setName} />
+                    <InputField label="Policy Description" value={description} setValue={setDescription} />
+                    <InputField label="Policy Type" value={type} setValue={setType} />
+                    {/* <InputField label="Value" value={value} setValue={setValue} /> */}
+                    <MonacoInput label="Value" value={value} setValue={setValue} />
                     <SwitchInput label="Enabled" value={policyEnabled} setValue={setPolicyEnabled} />
                 </div>
                 <Separator />
@@ -127,6 +144,9 @@ function PolicyInfoDrawer({open, setOpen, policy, datahook}: {open: boolean, set
                             },
                             body: JSON.stringify({
                                 ...policy,
+                                name,
+                                description,
+                                type,
                                 value,
                                 enabled: policyEnabled
                             }),
@@ -175,7 +195,8 @@ export function AddPolicyDrawer({open, setOpen, datahook}: {open: boolean, setOp
                     <InputField label="Name" value={name} setValue={setName} />
                     <InputField label="Description" value={description} setValue={setDescription} />
                     <InputField label="Type" value={type} setValue={setType} />
-                    <InputField label="Value" value={value} setValue={setValue} />
+                    {/* <InputField label="Value" value={value} setValue={setValue} /> */}
+                    <MonacoInput label="Value" value={value} setValue={setValue} />
                     {datahook.loaded && <SelectField label="Device Group" value={deviceGroupId} setValue={setDeviceGroupId} options={datahook.data?.["/admin/devicegroups"].data} />}
                 </div>
                 <Separator />

@@ -21,16 +21,18 @@ import {
 } from "@/components/ui/drawer"
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { CheckIcon, ClipboardCopyIcon, PlusIcon, SaveIcon, SearchIcon, XIcon } from "lucide-react";
+import { CheckIcon, ClipboardCopyIcon, PlusIcon, RotateCwIcon, SaveIcon, SearchIcon, XIcon } from "lucide-react";
 import { InputField, PrefixedInput } from "@/components/fields";
 import { useAuth } from "keystone-lib";
 import { UserItem } from "@/components/header";
 import { ConfirmDialog } from "@/components/confirmDialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export function DeviceTable({datahook}: {datahook: any}) {
     const [domains, setDomains] = useState<any>([]);
+    const auth = useAuth({appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL!});
     useEffect(() => {
         if (datahook.loaded) {
             setDomains(datahook.data?.["/admin/devices"].data)
@@ -50,6 +52,43 @@ export function DeviceTable({datahook}: {datahook: any}) {
             {
                 header: "Type",
                 accessorKey: "type",
+            },
+            {
+                header: "Last Seen",
+                accessorKey: "changedStatusAt",
+                cell: ({row}) => {
+                    return row.original.online ? "Now" : new Date(row.original.changedStatusAt).toLocaleString();
+                },
+            },
+            {
+                header: "Actions",
+                cell: ({row}) => {
+                    return (
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <RotateCwIcon size={18} style={{cursor: "pointer", color: "var(--qu-text)"}} onClick={async (e) => {
+                                    e.stopPropagation();
+                                    const req = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL! + "/admin/device/" + row.original.id + "/refreshpolicy", {
+                                        method: "POST",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                            "accept": "application/json",
+                                            "Authorization": `Bearer ${auth.data?.sessionId}`,
+                                        },
+                                    });
+                                    if (req.ok) {
+                                        toast.success("Policy refresh started for " + auth.data?.tenant.name + "/" + row.original.name);
+                                    } else {
+                                        toast.error("Failed to start policy refresh for " + auth.data?.tenant.name + "/" + row.original.name);
+                                    }
+                                }} />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                Refresh Policies
+                            </TooltipContent>
+                        </Tooltip>
+                    );
+                },
             },
         ],
         getCoreRowModel: getCoreRowModel(),
@@ -109,6 +148,9 @@ function DeviceInfoDrawer({open, setOpen, device, datahook}: {open: boolean, set
                 <div className="drawer-mainarea">
                     <CopyValueRow value={device.id} title="Device ID" />
                     <CopyValueRow value={device.deviceToken} title="Device Token" />
+                    <CopyValueRow value={device.os} title="OS" />
+                    <CopyValueRow value={device.osVersion} title="OS Version" />
+                    <CopyValueRow value={device.architecture} title="OS Architecture" />
                 </div>
                 <Separator />
                 <DrawerFooter style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-end"}}>

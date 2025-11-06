@@ -4,7 +4,7 @@ import { useAuth } from "keystone-lib";
 import { usePathname } from "next/navigation";
 import { useWindowSize } from "@/lib/screensize";
 import { Avatar, AvatarFallback } from "./ui/avatar";
-import { ActivityIcon, ArchiveIcon, ArrowUpCircleIcon, GlobeIcon, GroupIcon, LaptopMinimalIcon, PackageIcon, PlusIcon, ShieldIcon, ShoppingBagIcon, UsersIcon } from "lucide-react";
+import { ActivityIcon, ArchiveIcon, ArrowUpCircleIcon, GlobeIcon, GroupIcon, LaptopMinimalIcon, LayoutDashboardIcon, PackageIcon, PlusIcon, ShieldIcon, ShoppingBagIcon, UsersIcon } from "lucide-react";
 import { Separator } from "./ui/separator";
 import { HomeIcon } from "lucide-react";
 import { SettingsIcon } from "lucide-react";
@@ -54,7 +54,7 @@ export const AdminSidebar = ({ignoreSize}: {ignoreSize?: boolean}) => {
             <SidebarItem title="Monitoring" onClick={() => {router.push("/admin/monitoring")}} Icon={ActivityIcon} active={path === "/admin/monitoring"} index={7} />
             <SidebarItem title="Users" onClick={() => {router.push("/admin/users")}} Icon={UsersIcon} active={path === "/admin/users"} index={8} />
             <Separator style={{margin: "10px 0px"}} />
-            <SidebarItem title="Access" onClick={() => {router.push("/access")}} Icon={GlobeIcon} active={false} index={8} />
+            <SidebarItem title="Portal" onClick={() => {router.push("/portal")}} Icon={LayoutDashboardIcon} active={false} index={8} />
         </div>
     );
 };

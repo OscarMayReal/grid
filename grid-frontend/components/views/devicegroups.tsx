@@ -31,9 +31,12 @@ import { toast } from "sonner";
 import { DeviceItem } from "./devices";
 import { DeviceSearchInput } from "../searchInputs";
 import { addDeviceToGroup } from "@/lib/admin";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { RotateCwIcon } from "lucide-react";
 
 export function DeviceGroupTable({datahook}: {datahook: any}) {
     const [domains, setDomains] = useState<any>([]);
+    const auth = useAuth({appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL!});
     useEffect(() => {
         if (datahook.loaded) {
             setDomains(datahook.data?.["/admin/devicegroups"].data.map((group: any) => ({
@@ -59,6 +62,36 @@ export function DeviceGroupTable({datahook}: {datahook: any}) {
                 cell: ({row}) => {
                     return (
                         <div>{new Date(row.original.createdAt).toLocaleString()}</div>
+                    );
+                },
+            },
+            {
+                header: "Actions",
+                cell: ({row}) => {
+                    return (
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <RotateCwIcon size={18} style={{cursor: "pointer", color: "var(--qu-text)"}} onClick={async (e) => {
+                                    e.stopPropagation();
+                                    const req = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL! + "/admin/deviceGroup/" + row.original.id + "/refreshpolicy", {
+                                        method: "POST",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                            "accept": "application/json",
+                                            "Authorization": `Bearer ${auth.data?.sessionId}`,
+                                        },
+                                    });
+                                    if (req.ok) {
+                                        toast.success("Policy refresh started for " + auth.data?.tenant.name + "/" + row.original.name);
+                                    } else {
+                                        toast.error("Failed to start policy refresh for " + auth.data?.tenant.name + "/" + row.original.name);
+                                    }
+                                }} />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                Refresh Policies
+                            </TooltipContent>
+                        </Tooltip>
                     );
                 },
             },
