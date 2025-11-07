@@ -235,6 +235,16 @@ app.delete("/admin/policy/:id", async (req, res) => {
     res.send(policy);
 });
 
+app.get("/flathubproxy/*locpath", async (req, res) => {
+    console.log("https://flathub.org/api/v2/" + req.params.locpath.join("/"));
+    const response = await fetch("https://flathub.org/api/v2/" + req.params.locpath.join("/"), {
+        headers: {
+            "User-Agent": "chrome/120.0.0.0"
+        }
+    });
+    res.send(await response.json());
+});
+
 server.listen(3001, () => {
     console.log("listening on *:3001");
 });

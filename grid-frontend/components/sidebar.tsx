@@ -4,7 +4,7 @@ import { useAuth } from "keystone-lib";
 import { usePathname } from "next/navigation";
 import { useWindowSize } from "@/lib/screensize";
 import { Avatar, AvatarFallback } from "./ui/avatar";
-import { ActivityIcon, ArchiveIcon, ArrowUpCircleIcon, GlobeIcon, GroupIcon, LaptopMinimalIcon, LayoutDashboardIcon, PackageIcon, PlusIcon, ShieldIcon, ShoppingBagIcon, UsersIcon } from "lucide-react";
+import { ActivityIcon, ArchiveIcon, ArrowUpCircleIcon, GlobeIcon, GroupIcon, LaptopMinimalIcon, LayoutDashboardIcon, PackageIcon, PlusIcon, ShieldIcon, ShoppingBagIcon, ShoppingCartIcon, UsersIcon } from "lucide-react";
 import { Separator } from "./ui/separator";
 import { HomeIcon } from "lucide-react";
 import { SettingsIcon } from "lucide-react";
@@ -48,6 +48,7 @@ export const AdminSidebar = ({ignoreSize}: {ignoreSize?: boolean}) => {
             <SidebarItem title="All Devices" onClick={() => {router.push("/admin/devices")}} Icon={LaptopMinimalIcon} active={path === "/admin/devices"} index={1} />
             <SidebarItem title="Groups" onClick={() => {router.push("/admin/devicegroups")}} Icon={GroupIcon} active={path === "/admin/devicegroups"} index={2} />
             <SidebarItem title="Policies" onClick={() => {router.push("/admin/policies")}} Icon={ShieldIcon} active={path === "/admin/policies"} index={3} />
+            <SidebarItem title="Store" onClick={() => {router.push("/admin/store")}} Icon={ShoppingCartIcon} active={path.startsWith("/admin/store")} index={4} />
             <SidebarItem title="Solutions" onClick={() => {router.push("/admin/solutions")}} Icon={PackageIcon} active={path === "/admin/solutions"} index={4} />
             <SidebarItem title="Settings" onClick={() => {router.push("/admin/settings")}} Icon={SettingsIcon} active={path === "/admin/settings"} index={5} />
             <SidebarItem title="Updates" onClick={() => {router.push("/admin/updates")}} Icon={ArrowUpCircleIcon} active={path === "/admin/updates"} index={6} /> 

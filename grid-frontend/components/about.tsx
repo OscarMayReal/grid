@@ -9,7 +9,7 @@ export function About({open, setOpen}: {open: boolean, setOpen: (open: boolean) 
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent>
                 <DialogHeader>
-                    <img src="/logo.svg" className="header-logo" style={{objectFit: "contain", height: "30px", width: "fit-content", marginLeft: "0px"}} />
+                    <img src="/icon.png" className="header-logo" style={{objectFit: "contain", height: "40px", width: "fit-content", marginLeft: "0px"}} />
                     <DialogTitle>About Grid</DialogTitle>
                     <DialogDescription>Version {process.env.NEXT_PUBLIC_APP_VERSION}</DialogDescription>
                 </DialogHeader>

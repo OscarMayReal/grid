@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 export type RequestObject = {
     url: string
     resType?: "json" | "text" | undefined
+    noAuth?: boolean,
 }
 
 export type ResponseObject = {
@@ -11,7 +12,8 @@ export type ResponseObject = {
     data: any
 }
 
-export function useRequests({requests}: {requests: RequestObject[]}) {
+export function useRequests({requests, baseUrl, noAuth}: {requests: RequestObject[], baseUrl?: string, noAuth?: boolean}) {
+    var baseurl = baseUrl || process.env.NEXT_PUBLIC_BACKEND_URL!
     const auth = useAuth({appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL!})
     function reload() {
         setData({loaded: false, data: {}, reload})
@@ -22,8 +24,8 @@ export function useRequests({requests}: {requests: RequestObject[]}) {
         if (!auth.data) return
         var responses: Record<string, ResponseObject> = {}
         Promise.all(requests.map((request) => {
-            return fetch(process.env.NEXT_PUBLIC_BACKEND_URL! + request.url, {
-                headers: {
+            return fetch(baseurl + request.url, {
+                headers: request.noAuth || noAuth ? {} : {
                     "authorization": "Bearer " + auth.data?.sessionId!
                 }
             }).then(async (res) => {
