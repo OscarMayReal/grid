@@ -5,6 +5,7 @@ import { io } from "socket.io-client";
 import { applyPolicy } from "./policyApplicator.ts";
 import pkg from "freedesktop-notifications";
 const { Notification } = pkg;
+import os from "os";
 const socket = io(serverurl, {
     auth: {
         deviceId: "cmhkkibu70000q0s91dzr7ldh",
@@ -43,6 +44,11 @@ socket.on("device.connected", (data: any) => {
         body: "Authenticated successfully",
     });
     notification.push();
+    socket.emit("deviceinfo.set", {
+        os: os.type(),
+        osVersion: os.release(),
+        architecture: os.arch(),
+    });
 });
 
 socket.connect();
