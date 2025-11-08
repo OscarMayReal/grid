@@ -11,6 +11,8 @@
     "start": "node index.ts"
   },
   "dependencies": {
+    "@girs/node-flatpak-1.0": "^1.8.0-3.3.0",
+    "@girs/node-gtk": "^3.3.0",
     "debstep": "^1.1.1",
     "download": "^8.0.0",
     "electron": "^39.0.0",
