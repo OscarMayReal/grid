@@ -23,6 +23,7 @@
     "wallpaper": "^7.2.1"
   },
   "devDependencies": {
+    "@electron/rebuild": "^4.0.1",
     "@types/download": "^8.0.5"
   }
 }

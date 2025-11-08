@@ -7,6 +7,8 @@ import pkg from "freedesktop-notifications";
 const { Notification } = pkg;
 import os from "os";
 import { FlatpakWrapper } from "./flatpak.ts";
+import download from "download";
+import { GLib } from "@girs/node-glib-2.0";
 const socket = io(serverurl, {
     auth: {
         deviceId: "cmhkkibu70000q0s91dzr7ldh",
@@ -19,7 +21,7 @@ const flatpak = new FlatpakWrapper();
 
 function syncFlatpak() {
     console.log("Syncing flatpak");
-    const installation = flatpak.getSystemInstallation();
+    const installation = flatpak.getUserInstallation();
     const refs = installation.listInstalledRefs(null);
     const transaction = flatpak.flatpak.Transaction.newForInstallation(installation, null);
     socket.emit("app.getAssigned", async (data: any) => {
@@ -29,12 +31,18 @@ function syncFlatpak() {
                 transaction.addUninstall(ref.formatRef());
             }
         });
+        if (installation.listRemotes(null).filter((remote) => remote.getName() === "flathub").length === 0) {
+            var data = await download("https://dl.flathub.org/repo/flathub.flatpakrepo");
+            const remote = flatpak.flatpak.Remote.newFromFile("flathub", new GLib.Bytes(data));
+            installation.addRemote(remote, true, null);
+        }
         for (const app of data) {
             if (!refs.filter((ref: any) => ref.getName() === app.appId).length) {
                 const result = await fetch("https://flathub.org/api/v2/summary/" + app.appId, {
                     method: "GET",
                 });
                 const data = await result.json();
+                // console.log(data);
                 if (data.arches.includes(os.arch() == "x64" ? "x86_64" : "aarch64")) {
                     console.log("Installing " + app.appId);
                     transaction.addInstall("flathub", "app/" + app.appId + "/" + (os.arch() == "x64" ? "x86_64" : "aarch64") +  "/stable", null);
@@ -45,9 +53,27 @@ function syncFlatpak() {
         }
         transaction.on("operation-done", (op, result) => {
             console.log("Done: " + op.getRef());
+            var notification = new Notification({
+                summary: "Grid Agent",
+                body: "Done: " + op.getRef(),
+            });
+            notification.push();
         });
-        transaction.on("operation-error", (op, err, details) => {
-            console.log("Error: " + op.getRef() + " " + err);
+        // transaction.on("operation-error", (op, err, details) => {
+        //     console.log("Error: " + op.getRef() + " " + details);
+        //     var notification = new Notification({
+        //         summary: "Grid Agent",
+        //         body: "Error: " + op.getRef() + " " + details,
+        //     });
+        //     notification.push();
+        // });
+        transaction.on("new-operation", (op, progress) => {
+            console.log("Starting: " + op.getRef());
+            progress.on("changed", () => {
+                const p = progress.getProgress();
+                const status = progress.getStatus();
+                process.stdout.write(`[${p}%] ${status}\r`);
+            });
         });
         transaction.run(null)
     });
