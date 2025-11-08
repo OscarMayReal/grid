@@ -30,9 +30,10 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { DeviceItem } from "./devices";
 import { DeviceSearchInput } from "../searchInputs";
-import { addDeviceToGroup, removeDeviceFromGroup } from "@/lib/admin";
+import { addDeviceToGroup, removeAppFromGroup, removeDeviceFromGroup } from "@/lib/admin";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { RotateCwIcon } from "lucide-react";
+import { useRequests } from "@/lib/useRequests";
 
 export function DeviceGroupTable({datahook}: {datahook: any}) {
     const [domains, setDomains] = useState<any>([]);
@@ -173,6 +174,10 @@ function DeviceGroupInfoDrawer({open, setOpen, deviceGroup, datahook}: {open: bo
                             }}><XIcon size={20} /></Button>} key={deviceGroupDevice.id} device={deviceGroupDevice.device} />
                         ))}
                     </div>
+                    <Separator style={{marginTop: "25px"}} />
+                    <div style={{fontSize: "20px", fontWeight: "500", marginLeft: "20px", marginTop: "20px"}}>Apps</div>
+                    <div style={{fontSize: "14px", fontWeight: "500", marginLeft: "20px", marginTop: "0px", color: "var(--qu-text-secondary)"}}>Apps assigned to this group</div>
+                    {open && <AppList deviceGroup={deviceGroup} />}
                 </div>
                 <Separator />
                 <DrawerFooter style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-end"}}>
@@ -181,6 +186,58 @@ function DeviceGroupInfoDrawer({open, setOpen, deviceGroup, datahook}: {open: bo
             </DrawerContent>
         </Drawer>
     );
+}
+
+export function AppItem({app, extra}: {app: any, extra?: React.ReactNode}) {
+    const appInfo = useRequests({
+        requests: [
+            {
+                url: "/flathubproxy/compat/apps/" + app.appId,
+                resType: "json"
+            }
+        ],
+    });
+    if (!appInfo.loaded) {
+        return <div>Loading...</div>;
+    }
+    return (
+        <div className="flex flex-row items-center gap-2">
+            <img src={appInfo.data["/flathubproxy/compat/apps/" + app.appId].data.iconDesktopUrl} style={{
+                width: "40px",
+                height: "40px",
+                borderRadius: "5px"
+            }} />
+            <div className="min-w-0">
+                <div style={{fontSize: "16px", fontWeight: "500"}}>{app.name || app.appId}</div>
+                <div style={{fontSize: "12px", color: "var(--qu-text-secondary)"}}>{app.appId}</div>
+            </div>
+            <div style={{flex: 1}} />
+            {extra}
+        </div>
+    );
+}
+
+export function AppList({deviceGroup}: {deviceGroup: any}) {
+    const requests = useRequests({
+        requests: [
+            {
+                url: "/admin/devicegroup/" + deviceGroup.id + "/apps",
+                resType: "json"
+            }
+        ],
+    });
+    if (!requests.loaded) {
+        return <div>Loading...</div>;
+    }
+    return <div className="p-3 flex flex-col gap-3 shadow-sm rounded-md bg-card m-[20px] separator-y-[#e4e4e7]">
+        {requests.data["/admin/devicegroup/" + deviceGroup.id + "/apps"].data.map((app: any) => (
+            <AppItem extra={<Button variant="outline" onClick={async () => {
+                await removeAppFromGroup(app.id);
+                toast.success("App removed from group");
+                requests.reload();
+            }}><XIcon size={20} /></Button>} key={app.id} app={app} />
+        ))}
+    </div>;
 }
 
 export function AddDeviceGroupDrawer({open, setOpen, datahook}: {open: boolean, setOpen: (open: boolean) => void, datahook: any}) {

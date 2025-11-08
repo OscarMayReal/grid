@@ -288,6 +288,11 @@ app.post("/admin/app", async (req, res) => {
     res.send(app);
 });
 
+app.get("/admin/devicegroup/:id/apps", async (req, res) => {
+    const apps = await getAppsInGroup(req.params.id);
+    res.send(apps);
+});
+
 app.get("/admin/app/:id", async (req, res) => {
     const app = await getAppById(req.params.id);
     if (!app || app.tenantId !== req.sessionData.tenant.id) {

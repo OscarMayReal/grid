@@ -9,6 +9,7 @@ import { useParams } from "next/navigation";
 import { use } from "react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 export default function AppPage({params}: {params: {appid: string}}) {
     const Params = use(params);
@@ -16,6 +17,10 @@ export default function AppPage({params}: {params: {appid: string}}) {
         requests: [
             {
                 url: "/compat/apps/" + Params.appid,
+                resType: "json"
+            },
+            {
+                url: "/appstream/" + Params.appid,
                 resType: "json"
             }
         ],
@@ -25,7 +30,7 @@ export default function AppPage({params}: {params: {appid: string}}) {
     if (!datahook.loaded) {
         return null;
     }
-    return <div>
+    return <div className="overflow-scroll h-full w-full pb-[25px]">
         <AppHeader app={datahook.data["/compat/apps/" + Params.appid].data} />
         <div className="px-[25px]">
             <div style={{
@@ -36,6 +41,17 @@ export default function AppPage({params}: {params: {appid: string}}) {
                 color: "var(--qu-text)"
             }} dangerouslySetInnerHTML={{__html: datahook.data["/compat/apps/" + Params.appid].data.description}} />
         </div>
+        <div className="">
+            <div className="px-[25px] mt-[25px]" style={{
+                color: "var(--qu-text-secondary)",
+                marginBottom: "5px"
+            }}>Screenshots</div>
+            <div className="flex flex-row overflow-x-scroll px-[25px] mt-[25px] gap-[25px] max-w-full">
+                {datahook.data["/appstream/" + Params.appid].data.screenshots.map((screenshot: any) => (
+                    <img className="max-w-full max-h-[450px]" src={screenshot.sizes[0].src} />
+                ))}
+            </div>
+        </div>
     </div>;
 }
 
@@ -43,15 +59,18 @@ export function AppHeader({app}: {app: any}) {
     const datahook = useRequests({
         requests: [
             {
-                url: "/devicegroups",
+                url: "/admin/devicegroups",
                 resType: "json"
             },
             {
-                url: "/appid/" + app.flatpakAppId,
+                url: "/admin/appid/" + app.flatpakAppId,
+                resType: "json"
+            },
+            {
+                url: "/flathubproxy/summary/" + app.flatpakAppId,
                 resType: "json"
             }
         ],
-        baseUrl: process.env.NEXT_PUBLIC_BACKEND_URL! + "/admin",
     });
     const [selectedGroup, setSelectedGroup] = useState("");
     const [open, setOpen] = useState(false);
@@ -84,11 +103,16 @@ export function AppHeader({app}: {app: any}) {
                             Install {app.name} on managed devices in the selected group
                         </DialogDescription>
                     </DialogHeader>
-                    <SelectField noMargin label=" " value={selectedGroup} setValue={setSelectedGroup} options={datahook.data["/devicegroups"].data.map((group: any) => ({
+                    <div className="flex flex-row gap-[15px]">
+                        {datahook.data["/flathubproxy/summary/" + app.flatpakAppId].data.arches.map((arch: string) => (
+                            <Badge key={arch}>{arch}</Badge>
+                        ))}
+                    </div>
+                    <SelectField noMargin label="" value={selectedGroup} setValue={setSelectedGroup} options={datahook.data["/admin/devicegroups"].data.map((group: any) => ({
                             id: group.id,
-                            name: datahook.data["/appid/" + app.flatpakAppId].data.some((app: any) => app.assignedToGroupId === group.id) ? group.name + " (Installed)" : group.name,
+                            name: datahook.data["/admin/appid/" + app.flatpakAppId].data.some((app: any) => app.assignedToGroupId === group.id) ? group.name + " (Installed)" : group.name,
                             description: group.description,
-                            disabled: datahook.data["/appid/" + app.flatpakAppId].data.some((app: any) => app.assignedToGroupId === group.id)
+                            disabled: datahook.data["/admin/appid/" + app.flatpakAppId].data.some((app: any) => app.assignedToGroupId === group.id)
                     }))} />
                     <DialogFooter>
                         <DialogClose asChild>
@@ -110,22 +134,22 @@ export function AppHeader({app}: {app: any}) {
                                 }),
                             });
                             if (req.ok) {
-                                toast.success("App installed successfully");
+                                toast.success("Added app to group and send sync command to devices");
                                 setSelectedGroup("");
                                 setOpen(false);
                                 setTimeout(() => {
                                     datahook.reload();
                                 }, 2000);
                             } else {
-                                toast.error("Failed to install app");
+                                toast.error("Failed to add app to group");
                             }
-                        }}><ArrowDownToLineIcon size={20} />Install</Button>
+                        }}><ArrowDownToLineIcon size={20} />Add</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>}
-            <Button style={{
+            {/* <Button style={{
                 color: "var(--qu-text)"
-            }} variant="outline"><StopCircleIcon />Block on managed devices</Button>
+            }} variant="outline"><StopCircleIcon />Block on managed devices</Button> */}
         </div>
     </div>
 }
