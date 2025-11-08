@@ -33,6 +33,18 @@ model device {
     displayName String
 }
 
+model App {
+    id String @id @default(cuid())
+    name String
+    appId String
+    assignedToGroupId String?
+    assignedToGroup DeviceGroup? @relation(fields: [assignedToGroupId], references: [id])
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now())
+    tenantId String
+    addedBy String
+}
+
 model Policy {
     id String @id @default(cuid())
     name String
@@ -60,6 +72,7 @@ model DeviceGroup {
     updatedAt DateTime @default(now())
     createdBy String
     displayName String
+    apps App[]
 }
 
 model deviceGroupDevice {
@@ -74,7 +87,6 @@ model deviceGroupDevice {
 model Solution {
     id String @id @default(cuid())
     description String?
-    availableForStore Boolean @default(false)
     packages String[]
     addScript String
     removeScript String

@@ -14,7 +14,7 @@ export function DeviceSearchInput({onDeviceSelect}: {onDeviceSelect: (device: an
     const [device, setDevice] = useState<any>(null);
     return (
         <div style={{padding: "20px 20px 0px 20px"}}>
-            <div style={{fontSize: "14px", fontWeight: "500", marginBottom: "10px"}}>Find User</div>
+            <div style={{fontSize: "14px", fontWeight: "500", marginBottom: "10px"}}>Find Device</div>
             <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "10px"}}>
                 <div className="flex items-center border border-input rounded-md shadow-xs bg-background focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px] transition-[color,box-shadow] px-3 h-9 text-base w-full">
                     <span style={{color: "var(--qu-text-secondary)"}} className="select-none text-[14px]">{auth?.data?.tenant.name + "/"}</span>

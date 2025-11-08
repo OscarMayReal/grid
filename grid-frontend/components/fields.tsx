@@ -53,7 +53,7 @@ export function SwitchInput({label, value, setValue}: {label: string, value: boo
     );
 }
 
-export function SelectField({label, value, setValue, options, noMargin}: {label: string, value: string, setValue: (value: string) => void, options: {id: string, name: string, description?: string}[], noMargin?: boolean}) {
+export function SelectField({label, value, setValue, options, noMargin}: {label: string, value: string, setValue: (value: string) => void, options: {id: string, name: string, description?: string, disabled?: boolean}[], noMargin?: boolean}) {
     return (
         <div style={noMargin ? {padding: "0px"} : {padding: "20px 20px 0px 20px"}}>
             <div style={{fontSize: "14px", fontWeight: "500", marginBottom: "10px"}}>{label}</div>
@@ -63,7 +63,7 @@ export function SelectField({label, value, setValue, options, noMargin}: {label:
                 </SelectTrigger>
                 <SelectContent>
                     {options.map((option) => (
-                        <SelectItem key={option.id} value={option.id}>
+                        <SelectItem disabled={option.disabled} key={option.id} value={option.id}>
                             <div style={{display: "flex", flexDirection: "column", alignItems: "start"}}>
                                 <div style={{color: "var(--qu-text)"}}>{option.name}</div>
                                 {option.description && <div style={{color: "var(--qu-text-secondary)"}}>{option.description}</div>}

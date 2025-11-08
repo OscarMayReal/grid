@@ -30,7 +30,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { DeviceItem } from "./devices";
 import { DeviceSearchInput } from "../searchInputs";
-import { addDeviceToGroup } from "@/lib/admin";
+import { addDeviceToGroup, removeDeviceFromGroup } from "@/lib/admin";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { RotateCwIcon } from "lucide-react";
 
@@ -165,15 +165,18 @@ function DeviceGroupInfoDrawer({open, setOpen, deviceGroup, datahook}: {open: bo
                         console.log(newdevice);
                         setDeviceGroupDevices([...deviceGroupDevices, newdevice]);
                     }} />
-                    <div className="item-list-holder">
+                    <div className="p-3 flex flex-col gap-3 shadow-sm rounded-md bg-card m-[20px] separator-y-[#e4e4e7]">
                         {deviceGroupDevices.map((deviceGroupDevice: any) => (
-                            <DeviceItem key={deviceGroupDevice.id} device={deviceGroupDevice.device} />
+                            <DeviceItem extra={<Button variant="outline" onClick={() => {
+                                removeDeviceFromGroup(deviceGroupDevice.device.id, deviceGroup.id);
+                                setDeviceGroupDevices(deviceGroupDevices.filter((deviceGroupDevice: any) => deviceGroupDevice.device.id !== deviceGroupDevice.device.id));
+                            }}><XIcon size={20} /></Button>} key={deviceGroupDevice.id} device={deviceGroupDevice.device} />
                         ))}
                     </div>
                 </div>
                 <Separator />
                 <DrawerFooter style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-end"}}>
-                    <Button onClick={() => setOpen(false)}><XIcon size={20} />Close</Button>
+                    <Button variant="outline" onClick={() => setOpen(false)}><XIcon size={20} />Close</Button>
                 </DrawerFooter>
             </DrawerContent>
         </Drawer>

@@ -27,7 +27,7 @@ export default function AdminPage({children}: {children: React.ReactNode}) {
     return <motion.div  className="page-layout flex flex-row gap-[20px]" initial={{x: "50px"}} style={{paddingLeft: "0px", overflow: "visible", maxWidth: "calc(100vw - 250px)"}} animate={{x: "0px"}} transition={{duration: 0.2, ease: "easeInOut"}}>
         <div className="w-[300px] min-w-[300px] h-full bg-white rounded-md shadow-md border-[#e4e4e7] flex flex-col">
             <div className="p-[15px] border-b border-[#e4e4e7]">
-                <div className="page-header-title mb-[10px]">Store</div>
+                <div className="page-header-title mb-[10px]">Flathub</div>
                 <Input placeholder="Search" />
             </div>
             <div className="flex-1 overflow-y-auto">

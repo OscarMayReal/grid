@@ -29,6 +29,7 @@ import { ConfirmDialog } from "@/components/confirmDialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { useRequests } from "@/lib/useRequests";
 
 export function DeviceTable({datahook}: {datahook: any}) {
     const [domains, setDomains] = useState<any>([]);
@@ -146,11 +147,17 @@ function DeviceInfoDrawer({open, setOpen, device, datahook}: {open: boolean, set
                 </DrawerHeader>
                 <Separator />
                 <div className="drawer-mainarea">
+                    <div style={{fontSize: "20px", fontWeight: "500", marginLeft: "20px", marginTop: "20px"}}>Device Information</div>
+                    <div style={{fontSize: "14px", fontWeight: "500", marginLeft: "20px", marginTop: "0px", color: "var(--qu-text-secondary)"}}>Information about this device</div>
                     <CopyValueRow value={device.id} title="Device ID" />
                     <CopyValueRow value={device.deviceToken} title="Device Token" />
                     <CopyValueRow value={device.os} title="OS" />
                     <CopyValueRow value={device.osVersion} title="OS Version" />
                     <CopyValueRow value={device.architecture} title="OS Architecture" />
+                    <Separator style={{marginTop: "25px"}} />
+                    <div style={{fontSize: "20px", fontWeight: "500", marginLeft: "20px", marginTop: "20px"}}>Installed Apps</div>
+                    <div style={{fontSize: "14px", fontWeight: "500", marginLeft: "20px", marginTop: "0px", color: "var(--qu-text-secondary)"}}>Apps installed on this device</div>
+                    {open && <InstalledAppList device={device} />}
                 </div>
                 <Separator />
                 <DrawerFooter style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-end"}}>
@@ -161,13 +168,61 @@ function DeviceInfoDrawer({open, setOpen, device, datahook}: {open: boolean, set
     );
 }
 
-export function DeviceItem({device, onClick}: {device: any, onClick?: () => void}) {
+export function InstalledAppList({device}: {device: any}) {
+    const datahook = useRequests({
+        requests: [
+            {
+                url: "/admin/device/name/" + device.name,
+                resType: "json"
+            }
+        ],
+    });
+    if (!datahook.loaded) {
+        return <div>Loading...</div>;
+    }
+    return <div className="p-3 flex flex-col gap-3 shadow-sm rounded-md bg-card m-[20px] separator-y-[#e4e4e7]">
+        {datahook.data["/admin/device/name/" + device.name].data.flatpaks.filter((app: any) => app.kind == 0).map((app: any) => (
+            <InstalledAppItem key={app.id} app={app} />
+        ))}
+    </div>;
+}
+
+export function InstalledAppItem({app}: {app: any}) {
+    const appInfo = useRequests({
+        requests: [
+            {
+                url: "/flathubproxy/compat/apps/" + app.appid,
+                resType: "json"
+            }
+        ],
+    });
+    if (!appInfo.loaded) {
+        return <div>Loading...</div>;
+    }
+    return (
+        <div className="flex flex-row items-center gap-2">
+            <img src={appInfo.data["/flathubproxy/compat/apps/" + app.appid].data.iconDesktopUrl} style={{
+                width: "40px",
+                height: "40px",
+                borderRadius: "5px"
+            }} />
+            <div>
+                <div style={{fontSize: "16px", fontWeight: "500"}}>{app.name || app.appid} v{app.version}</div>
+                <div style={{fontSize: "12px", color: "var(--qu-text-secondary)"}}>{app.appid}</div>
+            </div>
+        </div>
+    );
+}
+
+export function DeviceItem({device, onClick, extra}: {device: any, onClick?: () => void, extra?: React.ReactNode}) {
     return (
         <div className="flex flex-row items-center gap-2" onClick={onClick}>
             <div>
                 <div style={{fontSize: "16px", fontWeight: "500"}}>{device.displayName}</div>
                 <div style={{fontSize: "12px", color: "var(--qu-text-secondary)"}}>{device.name}</div>
             </div>
+            <div style={{flex: 1}}/>
+            {extra}
         </div>
     );
 }

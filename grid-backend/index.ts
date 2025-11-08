@@ -6,6 +6,7 @@ import { verifySessionMiddleware } from "./middleware.ts";
 import cors from "cors";
 import dotenv from "dotenv";
 import { createPolicy, deletePolicy, getDevicePolicies, getPoliciesByTenantId, getPolicyById, updatePolicy } from "./policyFunctions.ts";
+import { createApp, deleteApp, getAppById, getAppsInGroup, getInstancesOfApp } from "./appFunctions.ts";
 dotenv.config();
 
 const app = express();
@@ -63,6 +64,24 @@ io.on("connection", async (socket) => {
             await updateDevice(deviceSaved);
         })
 
+        //apps
+        socket.on("app.getAssigned", async (ack) => {
+            console.log("app.getAssigned");
+            const apps: any[] = [];
+            for (const deviceGroupDevice of device.deviceGroupDevices) {
+                var groupApps = await getAppsInGroup(deviceGroupDevice.deviceGroupId);
+                if (!groupApps) {
+                    return;
+                }
+                groupApps.forEach((app) => {
+                    if (!apps.find((a) => a.id === app.id)) {
+                        apps.push(app);
+                    }
+                });
+            }
+            ack(apps);
+        });
+
         //Disconnect
         socket.on("disconnect", async () => {
             const device = await getDeviceById(socket.handshake.auth.deviceId);
@@ -75,6 +94,7 @@ io.on("connection", async (socket) => {
         setTimeout(() => {
             console.log(socket.rooms);
             io.in("device_" + device.id).emit("policy.refresh");
+            io.in("device_" + device.id).emit("flatpak.sync");
             console.log("policy.refresh");
         }, 1000);
     } catch (e) {
@@ -108,7 +128,11 @@ app.get("/admin/device/name/:name", async (req, res) => {
     if (!device) {
         return res.status(404).send("Device not found");
     }
-    res.send(device);
+    const responses = await io.timeout(5000).in("device_" + device.id).emitWithAck("flatpak.list")
+    res.send({
+        ...device,
+        flatpaks: responses[0],
+    });
 });
 
 app.post("/admin/device/:id/refreshpolicy", async (req, res) => {
@@ -235,6 +259,8 @@ app.delete("/admin/policy/:id", async (req, res) => {
     res.send(policy);
 });
 
+//apps
+
 app.get("/flathubproxy/*locpath", async (req, res) => {
     console.log("https://flathub.org/api/v2/" + req.params.locpath.join("/"));
     const response = await fetch("https://flathub.org/api/v2/" + req.params.locpath.join("/"), {
@@ -243,6 +269,45 @@ app.get("/flathubproxy/*locpath", async (req, res) => {
         }
     });
     res.send(await response.json());
+});
+
+app.get("/admin/apps", async (req, res) => {
+    const apps = await getAppsByTenantId(req.sessionData.tenant.id);
+    res.send(apps);
+});
+
+app.post("/admin/app", async (req, res) => {
+    const app = await createApp({
+        name: req.body.name,
+        tenantId: req.sessionData.tenant.id,
+        addedBy: req.sessionData.user.id,
+        appId: req.body.appId,
+        assignedToGroupId: req.body.assignedToGroupId,
+    });
+    io.to("group_" + req.body.assignedToGroupId).emit("flatpak.sync");
+    res.send(app);
+});
+
+app.get("/admin/app/:id", async (req, res) => {
+    const app = await getAppById(req.params.id);
+    if (!app || app.tenantId !== req.sessionData.tenant.id) {
+        return res.status(404).send("App not found or not authorized");
+    }
+    res.send(app);
+});
+
+app.get("/admin/appid/:id", async (req, res) => {
+    const app = await getInstancesOfApp(req.params.id, req.sessionData.tenant.id);
+    if (!app) {
+        return res.status(404).send("App not found or not authorized");
+    }
+    res.send(app);
+});
+
+app.delete("/admin/app/:id", async (req, res) => {
+    const app = await deleteApp(req.params.id);
+    res.send(app);
+    io.to("group_" + app.assignedToGroupId).emit("flatpak.sync");
 });
 
 server.listen(3001, () => {
