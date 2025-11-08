@@ -105,7 +105,7 @@ socket.on("connect", () => {
 
 socket.on("flatpak.list", (ack: any) => {
     console.log("Installing flatpak");
-    const installation = flatpak.getSystemInstallation();
+    const installation = flatpak.getUserInstallation();
     const refs = installation.listInstalledRefs(null);
     const formattedRefs = refs.map((ref) => {
         return {
