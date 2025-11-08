@@ -56,7 +56,7 @@ export function SwitchInput({label, value, setValue}: {label: string, value: boo
 export function SelectField({label, value, setValue, options, noMargin}: {label: string, value: string, setValue: (value: string) => void, options: {id: string, name: string, description?: string, disabled?: boolean}[], noMargin?: boolean}) {
     return (
         <div style={noMargin ? {padding: "0px"} : {padding: "20px 20px 0px 20px"}}>
-            <div style={{fontSize: "14px", fontWeight: "500", marginBottom: "10px"}}>{label}</div>
+            {label && <div style={{fontSize: "14px", fontWeight: "500", marginBottom: "10px"}}>{label}</div>}
             <Select value={value} onValueChange={setValue}>
                 <SelectTrigger style={{backgroundColor: "var(--header-background)", width: "100%", height: "fit-content"}}>
                     <SelectValue placeholder="Select an option" />
