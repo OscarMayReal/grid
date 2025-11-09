@@ -1,6 +1,7 @@
 import { DesktopPolicyApplier } from "./policy/desktop.ts";
 import { ShellPolicyApplier } from "./policy/shell.ts";
 import { CommandPolicyApplier } from "./policy/command.ts";
+import { FilesPolicyApplier } from "./policy/files.ts";
 
 export async function applyPolicy(policies: any[]) {
     var applied = 0
@@ -13,6 +14,8 @@ export async function applyPolicy(policies: any[]) {
                 await ShellPolicyApplier(policy);
             } else if (policy.type.startsWith("command.")) {
                 await CommandPolicyApplier(policy);
+            } else if (policy.type.startsWith("files.")) {
+                await FilesPolicyApplier(policy);
             }
             applied += 1
         } else {

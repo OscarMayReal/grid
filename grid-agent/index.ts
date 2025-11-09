@@ -8,10 +8,12 @@ import download from "download";
 import { GLib } from "@girs/node-glib-2.0";
 import { init } from "./frontend.ts";
 import fs from "fs";
+import { memoryUsage } from "process";
+import { exec } from "child_process";
 
 function loadConfig() {
-    if (fs.existsSync("/home/parallels/grid/grid-agent/config.json")) {
-        return JSON.parse(fs.readFileSync("/home/parallels/grid/grid-agent/config.json", "utf-8"));
+    if (fs.existsSync("./config.json")) {
+        return JSON.parse(fs.readFileSync("./config.json", "utf-8"));
     } else {
         init();
         return null;
@@ -134,6 +136,34 @@ if (config) {
 
     socket.on("flatpak.sync", async (data: any) => {
         syncFlatpak();
+    });
+
+    socket.on("system.status", async (ack) => {
+        var status = {
+            os: os.type(),
+            osVersion: os.release(),
+            architecture: os.arch(),
+            totalMemory: os.totalmem(),
+            freeMemory: os.freemem(),
+            cpuUsage: os.cpus(),
+            networkInterfaces: os.networkInterfaces(),
+            uptime: os.uptime(),
+            loadavg: os.loadavg(),
+            platform: os.platform(),
+            release: os.release(),
+            hostname: os.hostname(),
+            homedir: os.homedir(),
+            tmpdir: os.tmpdir(),
+            userInfo: os.userInfo(),
+            cpus: os.cpus(),
+            totalmem: os.totalmem(),
+            freemem: os.freemem(),
+        }
+        ack(status);
+    });
+
+    socket.on("message.send", (data: any) => {
+        exec("zenity --info --text='" + data.message + "' --title='Message From Device Admin'");
     });
 
     socket.on("device.connected", (data: any) => {

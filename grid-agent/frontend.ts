@@ -22,7 +22,7 @@ export function init() {
     const button = new Gtk.Button({ label: 'Add device' });
     button.connect('clicked', () => {
         console.log('Adding device');
-        fs.writeFileSync('/home/parallels/grid/grid-agent/config.json', JSON.stringify({
+        fs.writeFileSync('./config.json', JSON.stringify({
             deviceId: idEntry.text,
             deviceToken: tokenEntry.text,
             serverUrl: urlEntry.text
