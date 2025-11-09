@@ -1,0 +1,10 @@
+PRETTY_NAME="Quntem ThetaOS"
+NAME="ThetaOS"
+VERSION_ID="13"
+VERSION="1.0.0"
+VERSION_CODENAME=trixie
+DEBIAN_VERSION_FULL=13.1
+ID=debian
+HOME_URL="https://theta.quntem.co.uk/"
+SUPPORT_URL="https://theta.quntem.co.uk/support"
+BUG_REPORT_URL="https://theta.quntem.co.uk/bugreport"

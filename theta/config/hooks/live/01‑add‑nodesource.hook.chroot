@@ -1,0 +1,32 @@
+#!/bin/bash
+set -e
+
+# Detect architecture
+ARCH=$(uname -m)
+case "$ARCH" in
+    x86_64) ARCH="x64" ;;
+    aarch64) ARCH="arm64" ;;
+    armv7l) ARCH="armv7l" ;;
+    *) echo "Unsupported architecture: $ARCH"; exit 1 ;;
+esac
+
+# Node version
+NODE_VER="25.1.0"
+
+# Download & extract
+cd /tmp
+curl -fsSL "https://nodejs.org/dist/v${NODE_VER}/node-v${NODE_VER}-linux-${ARCH}.tar.xz" -o node.tar.xz
+tar -xJf node.tar.xz
+cd "node-v${NODE_VER}-linux-${ARCH}"
+
+# Install into /usr/local for system-wide availability
+cp -R bin include lib share /usr/local/
+
+# Clean up
+cd /
+rm -rf /tmp/node-v${NODE_VER}-linux-${ARCH}*
+
+# Ensure /usr/local/bin is in PATH for systemd services
+# (systemd usually includes it, but just in case)
+echo 'PATH=/usr/local/bin:/usr/bin:/bin' >> /etc/environment
+

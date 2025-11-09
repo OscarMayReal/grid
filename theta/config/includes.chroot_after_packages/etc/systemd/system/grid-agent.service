@@ -1,0 +1,17 @@
+[Unit]
+Description=Grid Agent Service (User)
+After=graphical.target
+Wants=graphical.target
+
+[Service]
+Type=simple
+WorkingDirectory=/grid/grid-agent
+ExecStart=/usr/local/bin/node /grid/grid-agent/index.ts
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+
+[Install]
+WantedBy=default.target
+

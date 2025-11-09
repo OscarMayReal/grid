@@ -1,0 +1,36 @@
+---
+componentName:  thetaOS
+
+welcomeStyleCalamares:   false
+
+welcomeExpandingLogo:   true
+
+windowExpanding:    noexpand
+
+windowSize: 1050px,700px
+
+windowPlacement: center
+
+sidebar: widget
+
+navigation: widget
+
+strings:
+    productName:         ThetaOS
+    shortProductName:    ThetaOS
+    version:             1.0.0
+    shortVersion:        1.0.0
+    versionedName:       ThetaOS
+    shortVersionedName:  ThetaOS
+    bootloaderEntryName: Quntem ThetaOS
+
+images:
+    productIcon:            "logo.png"
+
+style:
+   SidebarBackground:        "#292F34"
+   SidebarText:              "#FFFFFF"
+   SidebarTextCurrent:       "#292F34"
+   SidebarBackgroundCurrent: "#D35400"
+
+slideshow: [ "slideshow.png", "slideshow.png" ]

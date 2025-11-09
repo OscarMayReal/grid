@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Exec=echo empty
+X-GNOME-Autostart-enabled=true
+Name=Install ThetaOS
+Comment=Install the system to disk

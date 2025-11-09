@@ -1,0 +1,2 @@
+live ALL=(ALL) NOPASSWD: /usr/bin/calamares
+live ALL=(ALL) NOPASSWD: /usr/bin/calamares, /usr/bin/node, /usr/bin/npm

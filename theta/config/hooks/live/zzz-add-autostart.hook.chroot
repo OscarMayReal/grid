@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+
+mkdir -p /etc/xdg/autostart
+cat > /etc/xdg/autostart/grid-agent.desktop <<'EOF'
+[Desktop Entry]
+Type=Application
+Exec=/usr/local/bin/node /grid/grid-agent/index.js
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name=Grid Agent
+Comment=Grid Agent for all users
+EOF

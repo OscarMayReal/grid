@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+
+# Only autostart Calamares if we’re booting into the installer session
+cat << 'EOF' > /etc/xdg/autostart/calamares.desktop
+[Desktop Entry]
+Type=Application
+Exec=pkexec calamares
+X-GNOME-Autostart-enabled=true
+Name=Calamares Installer
+Comment=Install the system to disk
+EOF
+
