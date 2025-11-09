@@ -13,6 +13,8 @@
   "dependencies": {
     "@girs/node-flatpak-1.0": "^1.8.0-3.3.0",
     "@girs/node-gtk": "^3.3.0",
+    "@girs/node-gtk-3.0": "^3.24.41-3.3.0",
+    "@girs/node-gtk-4.0": "^4.12.5-3.3.0",
     "download": "^8.0.0",
     "electron": "^39.0.0",
     "freedesktop-notifications": "^2.1.1",
