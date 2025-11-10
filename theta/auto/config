@@ -6,5 +6,4 @@ lb config noauto \
 	--bootloaders "grub-efi" \
 	--distribution trixie \
 	--debian-installer live \
-	-a amd64
 	"${@}"
