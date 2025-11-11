@@ -19,7 +19,7 @@ export const Header = ({title}: {title: string}) => {
     useEffect(() => {
         if (auth.data) {
             console.log(auth.data);
-        } else if (auth.loaded && auth.error) {
+        } else if (auth.loaded && !auth.data) {
             console.log(auth.error);
             window.location.href = process.env.NEXT_PUBLIC_KEYSTONE_URL! + "/auth/signin?redirectTo=" + window.location.href;
         }

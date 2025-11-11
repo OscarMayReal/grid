@@ -1,7 +1,7 @@
 "use client"
 import { Button } from "@/components/ui/button";
 import { AddDeviceDrawer } from "@/components/views/devices";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRequests } from "@/lib/useRequests";
 import { motion } from "framer-motion";
 import { DeviceTable } from "@/components/views/devices";
@@ -10,6 +10,8 @@ import { useRouter } from "next/navigation";
 
 export default function AdminPage({children}: {children: React.ReactNode}) {
     const [open, setOpen] = useState(false);
+    const [search, setSearch] = useState("");
+    const [items, setItems] = useState<any>([]);
     const datahook = useRequests({
         requests: [
             {
@@ -24,14 +26,35 @@ export default function AdminPage({children}: {children: React.ReactNode}) {
         baseUrl: process.env.NEXT_PUBLIC_BACKEND_URL! + "/flathubproxy",
         noAuth: true
     });
+    useEffect(() => {
+        if (datahook.loaded && search === "") {
+            setItems(datahook.data?.["/collection/recently-updated"]?.data?.hits);
+        } else if (search !== "") {
+            fetch(process.env.NEXT_PUBLIC_BACKEND_URL! + "/flathubproxy/search?locale=en", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "accept": "application/json",
+                },
+                body: JSON.stringify({
+                    query: search,
+                    filters: [],
+                    hits_per_page: 100,
+                    page: 1
+                }),
+            }).then((res) => res.json()).then((data) => {
+                setItems(data.hits);
+            });
+        }
+    }, [datahook, search]);
     return <motion.div  className="page-layout flex flex-row gap-[20px]" initial={{x: "50px"}} style={{paddingLeft: "0px", overflow: "visible", maxWidth: "calc(100vw - 250px)"}} animate={{x: "0px"}} transition={{duration: 0.2, ease: "easeInOut"}}>
         <div className="w-[300px] min-w-[300px] h-full bg-white rounded-md shadow-md border-[#e4e4e7] flex flex-col">
             <div className="p-[15px] border-b border-[#e4e4e7]">
                 <div className="page-header-title mb-[10px]">Flathub</div>
-                <Input placeholder="Search" />
+                <Input placeholder="Search" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
             <div className="flex-1 overflow-y-auto">
-                {datahook.loaded && datahook.data["/collection/recently-updated"].data.hits.map((app: any) => <AppItem app={app} />)}
+                {items.map((app: any) => <AppItem app={app} />)}
             </div>
         </div>
         <div className="flex-1 bg-white rounded-md shadow-md border-[#e4e4e7]" style={{maxWidth: "calc(100vw - 250px - 300px - 20px - 20px)", overflow: "visible"}}>

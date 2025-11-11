@@ -147,7 +147,32 @@ app.post("/admin/device/:id/refreshpolicy", async (req, res) => {
     });
 });
 
+app.post("/admin/device/:id/sendmessage", async (req, res) => {
+    const device = await getDeviceById(req.params.id);
+    if (!device) {
+        return res.status(404).send("Device not found");
+    }
+    io.in("device_" + device.id).emit("message.send", req.body);
+    res.send({
+        success: true,
+        message: "Message sent",
+    });
+});
+
 //deviceGroups
+
+app.post("/admin/deviceGroup/:id/sendmessage", async (req, res) => {
+    const deviceGroup = await getDeviceGroupById(req.params.id);
+    if (!deviceGroup) {
+        return res.status(404).send("Device group not found");
+    }
+    io.in("group_" + deviceGroup.id).emit("message.send", req.body);
+    res.send({
+        success: true,
+        message: "Message sent",
+    });
+});
+
 app.post("/admin/deviceGroup", async (req, res) => {
     const deviceGroup = await createDeviceGroup({
         name: req.body.name,
@@ -266,7 +291,21 @@ app.get("/flathubproxy/*locpath", async (req, res) => {
     const response = await fetch("https://flathub.org/api/v2/" + req.params.locpath.join("/"), {
         headers: {
             "User-Agent": "chrome/120.0.0.0"
-        }
+        },
+    });
+    res.send(await response.json());
+});
+
+app.post("/flathubproxy/*locpath", async (req, res) => {
+    console.log("https://flathub.org/api/v2/" + req.params.locpath.join("/"));
+    const response = await fetch("https://flathub.org/api/v2/" + req.params.locpath.join("/"), {
+        headers: {
+            "User-Agent": "chrome/120.0.0.0",
+            "Content-Type": "application/json",
+            "accept": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify(req.body),
     });
     res.send(await response.json());
 });

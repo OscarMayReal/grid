@@ -21,11 +21,11 @@ import {
 } from "@/components/ui/drawer"
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { CheckIcon, ClipboardCopyIcon, PlusIcon, SaveIcon, SearchIcon, XIcon } from "lucide-react";
+import { CheckIcon, ClipboardCopyIcon, MessageSquareIcon, PlusIcon, SaveIcon, SearchIcon, XIcon } from "lucide-react";
 import { InputField, PrefixedInput } from "@/components/fields";
 import { useAuth } from "keystone-lib";
 import { UserItem } from "@/components/header";
-import { ConfirmDialog } from "@/components/confirmDialog";
+import { ConfirmDialog, InputDialog } from "@/components/confirmDialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { DeviceItem } from "./devices";
@@ -70,29 +70,39 @@ export function DeviceGroupTable({datahook}: {datahook: any}) {
                 header: "Actions",
                 cell: ({row}) => {
                     return (
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <RotateCwIcon size={18} style={{cursor: "pointer", color: "var(--qu-text)"}} onClick={async (e) => {
-                                    e.stopPropagation();
-                                    const req = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL! + "/admin/deviceGroup/" + row.original.id + "/refreshpolicy", {
-                                        method: "POST",
-                                        headers: {
-                                            "Content-Type": "application/json",
-                                            "accept": "application/json",
-                                            "Authorization": `Bearer ${auth.data?.sessionId}`,
-                                        },
-                                    });
-                                    if (req.ok) {
-                                        toast.success("Policy refresh started for " + auth.data?.tenant.name + "/" + row.original.name);
-                                    } else {
-                                        toast.error("Failed to start policy refresh for " + auth.data?.tenant.name + "/" + row.original.name);
-                                    }
-                                }} />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                Refresh Policies
-                            </TooltipContent>
-                        </Tooltip>
+                        <div className="flex flex-row items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <RotateCwIcon size={18} style={{cursor: "pointer", color: "var(--qu-text)"}} onClick={async (e) => {
+                                        e.stopPropagation();
+                                        const req = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL! + "/admin/deviceGroup/" + row.original.id + "/refreshpolicy", {
+                                            method: "POST",
+                                            headers: {
+                                                "Content-Type": "application/json",
+                                                "accept": "application/json",
+                                                "Authorization": `Bearer ${auth.data?.sessionId}`,
+                                            },
+                                        });
+                                        if (req.ok) {
+                                            toast.success("Policy refresh started for " + auth.data?.tenant.name + "/" + row.original.name);
+                                        } else {
+                                            toast.error("Failed to start policy refresh for " + auth.data?.tenant.name + "/" + row.original.name);
+                                        }
+                                    }} />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    Refresh Policies
+                                </TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <SendMessage deviceGroup={row.original} auth={auth} />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    Send Message
+                                </TooltipContent>
+                            </Tooltip>
+                        </div>
                     );
                 },
             },
@@ -124,6 +134,33 @@ export function DeviceGroupTable({datahook}: {datahook: any}) {
             </Table>
         </div>
     );
+}
+
+function SendMessage({deviceGroup, auth}: {deviceGroup: any, auth: any}) {
+    const [open, setOpen] = useState(false)
+    const [message, setMessage] = useState("")
+    return <>
+        <MessageSquareIcon size={18} style={{cursor: "pointer", color: "var(--qu-text)"}} onClick={() => setOpen(true)} />
+        <InputDialog title="Send Message" description="Send a message to all devices in this group" isOpen={open} onClose={() => setOpen(false)} inputType="text" input={message} setInput={setMessage} onConfirm={async () => {
+            const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/admin/deviceGroup/" + deviceGroup.id + "/sendmessage", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${auth.data?.sessionId}`,
+                },
+                body: JSON.stringify({
+                    message: message,
+                }),
+            });
+            if (!response.ok) {
+                toast.error("Failed to send message");
+                return;
+            }
+            toast.success("Message sent");
+            setOpen(false);
+            setMessage("");
+        }} />
+    </>
 }
 
 const TableRowWithDrawer = ({row, datahook}: {row: Row<any>, datahook: any}) => {

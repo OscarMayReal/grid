@@ -44,18 +44,18 @@ export const AdminSidebar = ({ignoreSize}: {ignoreSize?: boolean}) => {
         <div className="sidebar">
             {/* <SidebarUserItem /> */}
             <div className="sidebar-tenant-name">{auth.data?.user?.tenant?.displayName ? auth.data?.user?.tenant?.displayName : auth.data?.user?.tenant?.name}</div>
-            <SidebarItem title="Home" onClick={() => {router.push("/admin")}} Icon={HomeIcon} active={path === "/admin"} index={0} />
+            {/* <SidebarItem title="Home" onClick={() => {router.push("/admin")}} Icon={HomeIcon} active={path === "/admin"} index={0} /> */}
             <SidebarItem title="All Devices" onClick={() => {router.push("/admin/devices")}} Icon={LaptopMinimalIcon} active={path === "/admin/devices"} index={1} />
             <SidebarItem title="Groups" onClick={() => {router.push("/admin/devicegroups")}} Icon={GroupIcon} active={path === "/admin/devicegroups"} index={2} />
             <SidebarItem title="Policies" onClick={() => {router.push("/admin/policies")}} Icon={ShieldIcon} active={path === "/admin/policies"} index={3} />
             <SidebarItem title="Store" onClick={() => {router.push("/admin/store")}} Icon={ShoppingCartIcon} active={path.startsWith("/admin/store")} index={4} />
-            <SidebarItem title="Solutions" onClick={() => {router.push("/admin/solutions")}} Icon={PackageIcon} active={path === "/admin/solutions"} index={4} />
-            <SidebarItem title="Settings" onClick={() => {router.push("/admin/settings")}} Icon={SettingsIcon} active={path === "/admin/settings"} index={5} />
+            {/* <SidebarItem title="Solutions" onClick={() => {router.push("/admin/solutions")}} Icon={PackageIcon} active={path === "/admin/solutions"} index={4} /> */}
+            {/* <SidebarItem title="Settings" onClick={() => {router.push("/admin/settings")}} Icon={SettingsIcon} active={path === "/admin/settings"} index={5} />
             <SidebarItem title="Updates" onClick={() => {router.push("/admin/updates")}} Icon={ArrowUpCircleIcon} active={path === "/admin/updates"} index={6} /> 
             <SidebarItem title="Monitoring" onClick={() => {router.push("/admin/monitoring")}} Icon={ActivityIcon} active={path === "/admin/monitoring"} index={7} />
             <SidebarItem title="Users" onClick={() => {router.push("/admin/users")}} Icon={UsersIcon} active={path === "/admin/users"} index={8} />
             <Separator style={{margin: "10px 0px"}} />
-            <SidebarItem title="Portal" onClick={() => {router.push("/portal")}} Icon={LayoutDashboardIcon} active={false} index={8} />
+            <SidebarItem title="Portal" onClick={() => {router.push("/portal")}} Icon={LayoutDashboardIcon} active={false} index={8} /> */}
         </div>
     );
 };

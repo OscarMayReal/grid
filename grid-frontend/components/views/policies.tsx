@@ -154,7 +154,7 @@ function PolicyInfoDrawer({open, setOpen, policy, datahook}: {open: boolean, set
                         setOpen(false)
                         setTimeout(() => {
                             datahook.reload()
-                        }, 4000)
+                        }, 2000)
                     }}><SaveIcon size={20} />Save</Button>
                     <Button variant={"outline"} onClick={() => setOpen(false)}><XIcon size={20} />Close</Button>
                 </DrawerFooter>
