@@ -2,6 +2,10 @@
 
 Quntem Grid is a fleet management system for thetaOS devices.
 
+## Demo Video
+
+https://docs.google.com/videos/d/1w062mpZM18TqRNbBd6L-rL3YqO3PgC3nPl1C49PY2T0/edit?usp=sharing
+
 ## Setup
 
 ### Add App and Users
