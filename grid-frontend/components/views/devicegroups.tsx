@@ -7,7 +7,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-  } from "@/components/ui/table"
+} from "@/components/ui/table"
 import { useEffect, useState } from "react";
 import {
     Drawer,
@@ -35,9 +35,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { RotateCwIcon } from "lucide-react";
 import { useRequests } from "@/lib/useRequests";
 
-export function DeviceGroupTable({datahook}: {datahook: any}) {
+export function DeviceGroupTable({ datahook }: { datahook: any }) {
     const [domains, setDomains] = useState<any>([]);
-    const auth = useAuth({appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL!});
+    const auth = useAuth({ appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL! });
     useEffect(() => {
         if (datahook.loaded) {
             setDomains(datahook.data?.["/admin/devicegroups"].data.map((group: any) => ({
@@ -60,7 +60,7 @@ export function DeviceGroupTable({datahook}: {datahook: any}) {
             {
                 header: "Created At",
                 accessorKey: "createdAt",
-                cell: ({row}) => {
+                cell: ({ row }) => {
                     return (
                         <div>{new Date(row.original.createdAt).toLocaleString()}</div>
                     );
@@ -68,12 +68,12 @@ export function DeviceGroupTable({datahook}: {datahook: any}) {
             },
             {
                 header: "Actions",
-                cell: ({row}) => {
+                cell: ({ row }) => {
                     return (
                         <div className="flex flex-row items-center gap-2" onClick={(e) => e.stopPropagation()}>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <RotateCwIcon size={18} style={{cursor: "pointer", color: "var(--qu-text)"}} onClick={async (e) => {
+                                    <RotateCwIcon size={18} style={{ cursor: "pointer", color: "var(--qu-text)" }} onClick={async (e) => {
                                         e.stopPropagation();
                                         const req = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL! + "/admin/deviceGroup/" + row.original.id + "/refreshpolicy", {
                                             method: "POST",
@@ -136,11 +136,11 @@ export function DeviceGroupTable({datahook}: {datahook: any}) {
     );
 }
 
-function SendMessage({deviceGroup, auth}: {deviceGroup: any, auth: any}) {
+function SendMessage({ deviceGroup, auth }: { deviceGroup: any, auth: any }) {
     const [open, setOpen] = useState(false)
     const [message, setMessage] = useState("")
     return <>
-        <MessageSquareIcon size={18} style={{cursor: "pointer", color: "var(--qu-text)"}} onClick={() => setOpen(true)} />
+        <MessageSquareIcon size={18} style={{ cursor: "pointer", color: "var(--qu-text)" }} onClick={() => setOpen(true)} />
         <InputDialog title="Send Message" description="Send a message to all devices in this group" isOpen={open} onClose={() => setOpen(false)} inputType="text" input={message} setInput={setMessage} onConfirm={async () => {
             const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/admin/deviceGroup/" + deviceGroup.id + "/sendmessage", {
                 method: "POST",
@@ -163,7 +163,7 @@ function SendMessage({deviceGroup, auth}: {deviceGroup: any, auth: any}) {
     </>
 }
 
-const TableRowWithDrawer = ({row, datahook}: {row: Row<any>, datahook: any}) => {
+const TableRowWithDrawer = ({ row, datahook }: { row: Row<any>, datahook: any }) => {
     const [open, setOpen] = useState(false);
     return (
         <>
@@ -179,24 +179,24 @@ const TableRowWithDrawer = ({row, datahook}: {row: Row<any>, datahook: any}) => 
     );
 }
 
-function DeviceGroupInfoDrawer({open, setOpen, deviceGroup, datahook}: {open: boolean, setOpen: (open: boolean) => void, deviceGroup: any, datahook: any}) {
+function DeviceGroupInfoDrawer({ open, setOpen, deviceGroup, datahook }: { open: boolean, setOpen: (open: boolean) => void, deviceGroup: any, datahook: any }) {
     const [deviceGroupDevices, setDeviceGroupDevices] = useState(deviceGroup.deviceGroupDevices)
     return (
         <Drawer handleOnly direction="right" open={open} onOpenChange={setOpen}>
-            <DrawerContent>
-                <DrawerHeader style={{gap: "0px"}}>
-                    <DrawerTitle style={{color: "var(--qu-text)", fontWeight: "500"}}>{deviceGroup.name}</DrawerTitle>
-                    <DrawerDescription style={{color: "var(--qu-text-secondary)"}}>Manage this device group</DrawerDescription>
+            <DrawerContent style={{ outline: "none" }}>
+                <DrawerHeader style={{ gap: "0px" }}>
+                    <DrawerTitle style={{ color: "var(--qu-text)", fontWeight: "500" }}>{deviceGroup.name}</DrawerTitle>
+                    <DrawerDescription style={{ color: "var(--qu-text-secondary)" }}>Manage this device group</DrawerDescription>
                 </DrawerHeader>
                 <Separator />
                 <div className="drawer-mainarea">
-                    <div style={{fontSize: "20px", fontWeight: "500", marginLeft: "20px", marginTop: "20px"}}>Group Info</div>
-                    <div style={{fontSize: "14px", fontWeight: "500", marginLeft: "20px", marginTop: "0px", color: "var(--qu-text-secondary)"}}>Information about this device group</div>
+                    <div style={{ fontSize: "20px", fontWeight: "500", marginLeft: "20px", marginTop: "20px" }}>Group Info</div>
+                    <div style={{ fontSize: "14px", fontWeight: "500", marginLeft: "20px", marginTop: "0px", color: "var(--qu-text-secondary)" }}>Information about this device group</div>
                     <CopyValueRow value={deviceGroup.id} title="Device Group ID" />
 
-                    <Separator style={{marginTop: "25px"}} />
-                    <div style={{fontSize: "20px", fontWeight: "500", marginLeft: "20px", marginTop: "20px"}}>Devices</div>
-                    <div style={{fontSize: "14px", fontWeight: "500", marginLeft: "20px", marginTop: "0px", color: "var(--qu-text-secondary)"}}>Devices in this group</div>
+                    <Separator style={{ marginTop: "25px" }} />
+                    <div style={{ fontSize: "20px", fontWeight: "500", marginLeft: "20px", marginTop: "20px" }}>Devices</div>
+                    <div style={{ fontSize: "14px", fontWeight: "500", marginLeft: "20px", marginTop: "0px", color: "var(--qu-text-secondary)" }}>Devices in this group</div>
                     <DeviceSearchInput onDeviceSelect={async (device) => {
                         console.log(device);
                         const newdevice = await addDeviceToGroup(device.id, deviceGroup.id);
@@ -211,13 +211,13 @@ function DeviceGroupInfoDrawer({open, setOpen, deviceGroup, datahook}: {open: bo
                             }}><XIcon size={20} /></Button>} key={deviceGroupDevice.id} device={deviceGroupDevice.device} />
                         ))}
                     </div>
-                    <Separator style={{marginTop: "25px"}} />
-                    <div style={{fontSize: "20px", fontWeight: "500", marginLeft: "20px", marginTop: "20px"}}>Apps</div>
-                    <div style={{fontSize: "14px", fontWeight: "500", marginLeft: "20px", marginTop: "0px", color: "var(--qu-text-secondary)"}}>Apps assigned to this group</div>
+                    <Separator style={{ marginTop: "25px" }} />
+                    <div style={{ fontSize: "20px", fontWeight: "500", marginLeft: "20px", marginTop: "20px" }}>Apps</div>
+                    <div style={{ fontSize: "14px", fontWeight: "500", marginLeft: "20px", marginTop: "0px", color: "var(--qu-text-secondary)" }}>Apps assigned to this group</div>
                     {open && <AppList deviceGroup={deviceGroup} />}
                 </div>
                 <Separator />
-                <DrawerFooter style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-end"}}>
+                <DrawerFooter style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-end" }}>
                     <Button variant="outline" onClick={() => setOpen(false)}><XIcon size={20} />Close</Button>
                 </DrawerFooter>
             </DrawerContent>
@@ -225,11 +225,11 @@ function DeviceGroupInfoDrawer({open, setOpen, deviceGroup, datahook}: {open: bo
     );
 }
 
-export function AppItem({app, extra}: {app: any, extra?: React.ReactNode}) {
+export function AppItem({ app, extra }: { app: any, extra?: React.ReactNode }) {
     const appInfo = useRequests({
         requests: [
             {
-                url: "/flathubproxy/compat/apps/" + app.appId,
+                url: "/flathubproxy/appstream/" + app.appId,
                 resType: "json"
             }
         ],
@@ -239,22 +239,22 @@ export function AppItem({app, extra}: {app: any, extra?: React.ReactNode}) {
     }
     return (
         <div className="flex flex-row items-center gap-2">
-            <img src={appInfo.data["/flathubproxy/compat/apps/" + app.appId].data.iconDesktopUrl} style={{
+            <img src={appInfo.data["/flathubproxy/appstream/" + app.appId].data.icons[0].url} style={{
                 width: "40px",
                 height: "40px",
                 borderRadius: "5px"
             }} />
             <div className="min-w-0">
-                <div style={{fontSize: "16px", fontWeight: "500"}}>{app.name || app.appId}</div>
-                <div style={{fontSize: "12px", color: "var(--qu-text-secondary)"}}>{app.appId}</div>
+                <div style={{ fontSize: "16px", fontWeight: "500" }}>{app.name || app.appId}</div>
+                <div style={{ fontSize: "12px", color: "var(--qu-text-secondary)" }}>{app.appId}</div>
             </div>
-            <div style={{flex: 1}} />
+            <div style={{ flex: 1 }} />
             {extra}
         </div>
     );
 }
 
-export function AppList({deviceGroup}: {deviceGroup: any}) {
+export function AppList({ deviceGroup }: { deviceGroup: any }) {
     const requests = useRequests({
         requests: [
             {
@@ -277,18 +277,18 @@ export function AppList({deviceGroup}: {deviceGroup: any}) {
     </div>;
 }
 
-export function AddDeviceGroupDrawer({open, setOpen, datahook}: {open: boolean, setOpen: (open: boolean) => void, datahook: any}) {
+export function AddDeviceGroupDrawer({ open, setOpen, datahook }: { open: boolean, setOpen: (open: boolean) => void, datahook: any }) {
     const [displayName, setDisplayName] = useState("");
-    const auth = useAuth({appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL!});
+    const auth = useAuth({ appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL! });
     const [name, setName] = useState("");
     return (
         <Drawer handleOnly direction="right" open={open} onOpenChange={setOpen}>
             <DrawerTrigger asChild>
-                <Button style={{color: "var(--qu-text)"}} variant="outline"><PlusIcon size={20} />Add Device Group</Button>
+                <Button style={{ color: "var(--qu-text)" }} variant="outline"><PlusIcon size={20} />Add Device Group</Button>
             </DrawerTrigger>
             <DrawerContent>
                 <DrawerHeader>
-                    <DrawerTitle style={{color: "var(--qu-text)", fontWeight: "500"}}>Add Device Group</DrawerTitle>
+                    <DrawerTitle style={{ color: "var(--qu-text)", fontWeight: "500" }}>Add Device Group</DrawerTitle>
                 </DrawerHeader>
                 <Separator />
                 <div className="drawer-mainarea">
@@ -296,8 +296,8 @@ export function AddDeviceGroupDrawer({open, setOpen, datahook}: {open: boolean, 
                     <InputField label="Display Name" value={displayName} setValue={setDisplayName} />
                 </div>
                 <Separator />
-                <DrawerFooter style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-end"}}>
-                    <Button style={{color: "var(--qu-text)"}} variant="outline" onClick={() => setOpen(false)}><XIcon size={20} />Cancel</Button>
+                <DrawerFooter style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-end" }}>
+                    <Button style={{ color: "var(--qu-text)" }} variant="outline" onClick={() => setOpen(false)}><XIcon size={20} />Cancel</Button>
                     <Button onClick={async () => {
                         await fetch(process.env.NEXT_PUBLIC_BACKEND_URL! + "/admin/devicegroup", {
                             method: "POST",
@@ -322,13 +322,13 @@ export function AddDeviceGroupDrawer({open, setOpen, datahook}: {open: boolean, 
     );
 }
 
-export function CopyValueRow({value, title}: {value: string, title: string}) {
+export function CopyValueRow({ value, title }: { value: string, title: string }) {
     const [copied, setCopied] = useState(false);
     return (
-        <div style={{padding: "20px 20px 0px 20px"}}>
-            <div style={{fontSize: "14px", fontWeight: "500", marginBottom: "10px"}}>{title}</div>
-            <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "10px"}}>
-                <Input value={value} readOnly style={{flex: 1, backgroundColor: "var(--header-background)", color: "var(--qu-text)"}} />
+        <div style={{ padding: "20px 20px 0px 20px" }}>
+            <div style={{ fontSize: "14px", fontWeight: "500", marginBottom: "10px" }}>{title}</div>
+            <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "10px" }}>
+                <Input value={value} readOnly style={{ flex: 1, backgroundColor: "var(--header-background)", color: "var(--qu-text)" }} />
                 <Button variant="outline" onClick={() => {
                     navigator.clipboard.writeText(value);
                     setCopied(true);
