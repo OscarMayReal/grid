@@ -1,7 +1,16 @@
 .bar {
-  height: 50px;
+  height: 60px;
   width: 100%;
   display: flex;
   flex-direction: row;
   align-items: center;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.mainwindow {
+  width: 70%;
+  height: 70%;
+  display: flex;
+  flex-direction: column;
 }

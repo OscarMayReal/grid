@@ -47,6 +47,8 @@
   position: fixed;
   display: flex;
   flex-direction: column;
+  background-image: url("../thetawallpaper.png");
+  background-size: cover;
 }
 
 /* @media (prefers-color-scheme: light) {

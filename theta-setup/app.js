@@ -6,7 +6,8 @@ function createWindow () {
     height: 600,
   })
 
-  win.loadFile('dist/index.html')
+  // win.loadFile('dist/index.html')
+  win.loadURL('http://localhost:5173')
   win.setFullScreen(true)
 }
 

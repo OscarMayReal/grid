@@ -1,20 +1,50 @@
+import { useEffect, useState } from 'react'
 import './App.css'
 import { Button } from './components/ui/button'
-import { Grid2X2Icon } from 'lucide-react'
+import { ArrowRightIcon, BatteryIcon, Grid2X2Icon } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './components/ui/card'
 
 function App() {
   return (
     <>
-      <div className='w-full h-full' />
+      <div className='w-full h-full flex flex-col items-center justify-center'>
+        <Card className='mainwindow'>
+          <CardHeader>
+            <CardTitle>
+              ThetaOS Setup
+            </CardTitle>
+            <CardDescription>
+              Set up your new device
+            </CardDescription>
+          </CardHeader>
+          <CardContent className='flex-1'>
+            
+          </CardContent>
+          <CardFooter>
+            <Button><ArrowRightIcon/> Get Started</Button>
+          </CardFooter>
+        </Card>
+      </div>
       <Bar />
     </>
   )
 }
 
 function Bar() {
+  const [batteryPercent, setBatteryPercent] = useState(0)
+  useEffect(() => {
+    navigator.getBattery().then((battery) => {
+      setBatteryPercent(battery.level)
+      battery.addEventListener('levelchange', () => {
+        setBatteryPercent(battery.level)
+      })
+    })
+  }, [])
   return (
     <div className='bar'>
       <Button size={"sm"} variant={"outline"}><Grid2X2Icon />Enterprise Enrollment</Button>
+      <div className='flex-1' />
+      <Button size={"sm"} variant={"outline"}><BatteryIcon />{batteryPercent * 100}%</Button>
     </div>
   )
 }
