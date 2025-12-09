@@ -14,8 +14,8 @@ function createWindow() {
     }
   })
 
-  // win.loadFile('dist/index.html')
-  win.loadURL('http://localhost:5173')
+  win.loadFile('dist/index.html')
+  // win.loadURL('http://localhost:5173')
   win.setFullScreen(true)
   ipcMain.on("set-cookie", (event, cookie) => {
     win.webContents.session.cookies.set(cookie)
