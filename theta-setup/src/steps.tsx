@@ -2,7 +2,7 @@ import { Button } from "./components/ui/button";
 import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from "./components/ui/card";
 import { SetupContext, StepsEnum } from "./App";
 import { useContext, useEffect, useRef, useState } from "react";
-import { ArrowRightIcon, CheckIcon, GlobeIcon, LaptopMinimalIcon, UnlockIcon, Wifi, WifiIcon, WifiZeroIcon } from "lucide-react";
+import { ArrowRightIcon, CheckIcon, GlobeIcon, LaptopMinimalIcon, SparklesIcon, UnlockIcon, Wifi, WifiIcon, WifiZeroIcon } from "lucide-react";
 import { Input } from "./components/ui/input";
 import { Avatar, AvatarFallback } from "./components/ui/avatar";
 import { RadioGroup } from "@/components/ui/radio-group";
@@ -26,7 +26,13 @@ export function InitStep() {
                 </CardDescription>
             </CardHeader>
             <CardContent className='flex-1'>
-
+                <div className="w-full h-full flex items-center justify-center gap-10">
+                    <div className="flex flex-col gap-2 w-[382px]">
+                        <SparklesIcon />
+                        <div className="text-xl font-semibold">Welcome to ThetaOS</div>
+                        <div className="text-sm text-muted-foreground">The powerful and secure operating system for your device</div>
+                    </div>
+                </div>
             </CardContent>
             <CardFooter>
                 <div className='flex-1' />
