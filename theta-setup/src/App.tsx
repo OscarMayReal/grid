@@ -1,13 +1,14 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import './App.css'
 import { Button } from './components/ui/button'
-import { ArrowRightIcon, BatteryIcon, Grid2X2Icon, NetworkIcon, QrCodeIcon, XIcon } from 'lucide-react'
+import { ArrowRightIcon, BatteryChargingIcon, BatteryIcon, Grid2X2Icon, NetworkIcon, PowerIcon, QrCodeIcon, XIcon } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './components/ui/card'
 import type { WiFiNetwork } from "node-wifi"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './components/ui/dialog'
 import { Scanner } from '@yudiel/react-qr-scanner'
 import { ButtonGroup } from './components/ui/button-group'
-import { InitStep, NetworkStep, AccountStep } from './steps'
+import { InitStep, NetworkStep, AccountStep, DeviceUseStep } from './steps'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './components/ui/dropdown-menu'
 
 export enum StepsEnum {
   init,
@@ -29,6 +30,7 @@ function App() {
         <div className='w-full h-full flex flex-col items-center justify-center'>
           <Card className='mainwindow'>
             {step === StepsEnum.init && <InitStep />}
+            {step === StepsEnum.deviceUse && <DeviceUseStep />}
             {step === StepsEnum.network && <NetworkStep />}
             {step === StepsEnum.account && <AccountStep />}
           </Card>
@@ -40,22 +42,34 @@ function App() {
 }
 
 function Bar() {
-  const [batteryPercent, setBatteryPercent] = useState(0)
-  const [networks, setNetworks] = useState<WiFiNetwork[]>([])
+  const [battery, setBattery] = useState({ level: 0, charging: false })
   const [qrEnrollOpen, setQrEnrollOpen] = useState(false)
   const { step } = useContext(SetupContext)
   useEffect(() => {
-    window.wifi.scan().then((networks) => {
-      setNetworks(networks)
-      console.log(networks)
-    })
-  }, [])
-  useEffect(() => {
     navigator.getBattery().then((battery) => {
-      setBatteryPercent(battery.level)
+      setBattery(battery)
       battery.addEventListener('levelchange', () => {
-        setBatteryPercent(battery.level)
+        navigator.getBattery().then((battery) => {
+          setBattery(battery)
+        })
       })
+      battery.addEventListener('chargingchange', () => {
+        navigator.getBattery().then((battery) => {
+          setBattery(battery)
+        })
+      })
+      return () => {
+        battery.removeEventListener('levelchange', () => {
+          navigator.getBattery().then((battery) => {
+            setBattery(battery)
+          })
+        })
+        battery.removeEventListener('chargingchange', () => {
+          navigator.getBattery().then((battery) => {
+            setBattery(battery)
+          })
+        })
+      }
     })
   }, [])
   return (
@@ -65,7 +79,14 @@ function Bar() {
       <div className='flex-1' />
       <ButtonGroup>
         <Button size={"sm"} variant={"outline"}>{window.navigator.onLine ? <NetworkIcon /> : <XIcon />}</Button>
-        <Button size={"sm"} variant={"outline"}><BatteryIcon />{batteryPercent * 100}%</Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size={"sm"} variant={"outline"}>{battery.charging ? <BatteryChargingIcon /> : <BatteryIcon />}{battery.level * 100}%</Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem ><BatteryIcon /> {battery.level * 100}%</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </ButtonGroup>
     </div>
   )
