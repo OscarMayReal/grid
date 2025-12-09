@@ -1,35 +1,41 @@
-import { useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import './App.css'
 import { Button } from './components/ui/button'
-import { ArrowRightIcon, BatteryIcon, Grid2X2Icon, QrCodeIcon } from 'lucide-react'
+import { ArrowRightIcon, BatteryIcon, Grid2X2Icon, NetworkIcon, QrCodeIcon, XIcon } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './components/ui/card'
 import type { WiFiNetwork } from "node-wifi"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './components/ui/dialog'
 import { Scanner } from '@yudiel/react-qr-scanner'
+import { ButtonGroup } from './components/ui/button-group'
+import { InitStep, NetworkStep, AccountStep } from './steps'
+
+export enum StepsEnum {
+  init,
+  network,
+  deviceUse,
+  account
+}
+
+export const SetupContext = createContext({
+  step: StepsEnum.init,
+  setStep: (step: StepsEnum) => { }
+})
 
 function App() {
+  const [step, setStep] = useState(StepsEnum.init)
   return (
-    <>
-      <div className='w-full h-full flex flex-col items-center justify-center'>
-        <Card className='mainwindow'>
-          <CardHeader>
-            <CardTitle>
-              ThetaOS Setup
-            </CardTitle>
-            <CardDescription>
-              Set up your new device
-            </CardDescription>
-          </CardHeader>
-          <CardContent className='flex-1'>
-            
-          </CardContent>
-          <CardFooter>
-            <Button><ArrowRightIcon/> Get Started</Button>
-          </CardFooter>
-        </Card>
-      </div>
-      <Bar />
-    </>
+    <SetupContext.Provider value={{ step, setStep }}>
+      <>
+        <div className='w-full h-full flex flex-col items-center justify-center'>
+          <Card className='mainwindow'>
+            {step === StepsEnum.init && <InitStep />}
+            {step === StepsEnum.network && <NetworkStep />}
+            {step === StepsEnum.account && <AccountStep />}
+          </Card>
+        </div>
+        <Bar />
+      </>
+    </SetupContext.Provider>
   )
 }
 
@@ -37,6 +43,7 @@ function Bar() {
   const [batteryPercent, setBatteryPercent] = useState(0)
   const [networks, setNetworks] = useState<WiFiNetwork[]>([])
   const [qrEnrollOpen, setQrEnrollOpen] = useState(false)
+  const { step } = useContext(SetupContext)
   useEffect(() => {
     window.wifi.scan().then((networks) => {
       setNetworks(networks)
@@ -53,15 +60,18 @@ function Bar() {
   }, [])
   return (
     <div className='bar'>
-      <Button onClick={() => setQrEnrollOpen(true)} size={"sm"} variant={"outline"}><QrCodeIcon />Enroll With QR Code</Button>
+      {step === StepsEnum.init && <Button onClick={() => setQrEnrollOpen(true)} size={"sm"} variant={"outline"}><QrCodeIcon />Enroll With QR Code</Button>}
       <QREnrollDialog open={qrEnrollOpen} setOpen={setQrEnrollOpen} />
       <div className='flex-1' />
-      <Button size={"sm"} variant={"outline"}><BatteryIcon />{batteryPercent * 100}%</Button>
+      <ButtonGroup>
+        <Button size={"sm"} variant={"outline"}>{window.navigator.onLine ? <NetworkIcon /> : <XIcon />}</Button>
+        <Button size={"sm"} variant={"outline"}><BatteryIcon />{batteryPercent * 100}%</Button>
+      </ButtonGroup>
     </div>
   )
 }
 
-function QREnrollDialog({open, setOpen}: {open: boolean, setOpen: (open: boolean) => void}) {
+function QREnrollDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
   return <Dialog open={open} onOpenChange={setOpen}>
     <DialogContent>
       <DialogHeader>

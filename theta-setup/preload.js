@@ -1,4 +1,4 @@
-const { contextBridge } = require('electron')
+const { contextBridge, ipcRenderer } = require('electron')
 const wifi = require('node-wifi')
 
 
@@ -11,4 +11,9 @@ contextBridge.exposeInMainWorld("wifi", {
   connect: (opts) => wifi.connect(opts),
   disconnect: () => wifi.disconnect(),
   getCurrentConnections: () => wifi.getCurrentConnections()
+})
+
+contextBridge.exposeInMainWorld("cookie", {
+  get: () => ipcRenderer.sendSync("get-cookie"),
+  set: (cookie) => ipcRenderer.send("set-cookie", cookie)
 })
