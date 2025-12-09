@@ -3,6 +3,7 @@ import './App.css'
 import { Button } from './components/ui/button'
 import { ArrowRightIcon, BatteryIcon, Grid2X2Icon } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './components/ui/card'
+import type { WiFiNetwork } from "node-wifi"
 
 function App() {
   return (
@@ -32,6 +33,13 @@ function App() {
 
 function Bar() {
   const [batteryPercent, setBatteryPercent] = useState(0)
+  const [networks, setNetworks] = useState<WiFiNetwork[]>([])
+  useEffect(() => {
+    window.wifi.scan().then((networks) => {
+      setNetworks(networks)
+      console.log(networks)
+    })
+  }, [])
   useEffect(() => {
     navigator.getBattery().then((battery) => {
       setBatteryPercent(battery.level)
