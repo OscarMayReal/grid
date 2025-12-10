@@ -22,8 +22,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { CheckIcon, ClipboardCopyIcon, MessageSquareIcon, PlusIcon, RotateCwIcon, SaveIcon, SearchIcon, XIcon } from "lucide-react";
-import { InputField, PrefixedInput, SelectField } from "@/components/fields";
-import { useAuth, useResources } from "keystone-lib";
+import { InputField, PrefixedInput } from "@/components/fields";
+import { useAuth, User, useResources } from "keystone-lib";
 import { UserItem } from "@/components/header";
 import { ConfirmDialog, InputDialog } from "@/components/confirmDialog";
 import { Input } from "@/components/ui/input";
@@ -31,87 +31,37 @@ import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { useRequests } from "@/lib/useRequests";
 
-export function DeviceTable({ datahook }: { datahook: any }) {
-    const [domains, setDomains] = useState<any>([]);
+export function UsersTable() {
+    const [users, setUsers] = useState<User[]>([]);
     const auth = useAuth({ appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL! });
+    const resources = useResources({ appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL! });
     useEffect(() => {
-        if (datahook.loaded) {
-            setDomains(datahook.data?.["/admin/devices"].data)
+        if (resources.loaded) {
+            setUsers(resources.data?.users)
         }
-    }, [datahook]);
+    }, [resources]);
     const table = useReactTable({
-        data: domains,
+        data: users,
         columns: [
             {
                 header: "Name",
-                accessorKey: "displayName",
-            },
-            {
-                header: "Devicename",
                 accessorKey: "name",
+            },
+            {
+                header: "Email",
+                accessorKey: "email",
+            },
+            {
+                header: "Username",
+                accessorKey: "username",
                 cell: ({ row }) => {
-                    return auth.data?.tenant.name + "/" + row.original.name;
+                    return row.original.tenant?.name + "/" + row.original.username;
                 },
-            },
-            {
-                header: "Online",
-                accessorKey: "online",
-            },
-            {
-                header: "Type",
-                accessorKey: "type",
-            },
-            {
-                header: "Last Seen",
-                accessorKey: "changedStatusAt",
-                cell: ({ row }) => {
-                    return row.original.online ? "Now" : new Date(row.original.changedStatusAt).toLocaleString();
-                },
-            },
-            {
-                header: "Actions",
-                cell: ({ row }) => {
-                    return (
-                        <div className="flex flex-row items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <RotateCwIcon size={18} style={{ cursor: "pointer", color: "var(--qu-text)" }} onClick={async (e) => {
-                                        e.stopPropagation();
-                                        const req = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL! + "/admin/device/" + row.original.id + "/refreshpolicy", {
-                                            method: "POST",
-                                            headers: {
-                                                "Content-Type": "application/json",
-                                                "accept": "application/json",
-                                                "Authorization": `Bearer ${auth.data?.sessionId}`,
-                                            },
-                                        });
-                                        if (req.ok) {
-                                            toast.success("Policy refresh started for " + auth.data?.tenant.name + "/" + row.original.name);
-                                        } else {
-                                            toast.error("Failed to start policy refresh for " + auth.data?.tenant.name + "/" + row.original.name);
-                                        }
-                                    }} />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    Refresh Policies
-                                </TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                                <TooltipTrigger>
-                                    <SendMessage device={row.original} auth={auth} />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    Send Message
-                                </TooltipContent>
-                            </Tooltip>
-                        </div>
-                    );
-                },
-            },
+            }
         ],
         getCoreRowModel: getCoreRowModel(),
     });
-    if (!datahook.loaded) {
+    if (!resources.loaded) {
         return <div>Loading...</div>;
     }
     return (
@@ -130,7 +80,7 @@ export function DeviceTable({ datahook }: { datahook: any }) {
                 </TableHeader>
                 <TableBody>
                     {table.getRowModel().rows.map((row) => (
-                        <TableRowWithDrawer key={row.id} row={row} datahook={datahook} />
+                        <TableRowWithDrawer key={row.id} row={row} />
                     ))}
                 </TableBody>
             </Table>
@@ -138,7 +88,7 @@ export function DeviceTable({ datahook }: { datahook: any }) {
     );
 }
 
-const TableRowWithDrawer = ({ row, datahook }: { row: Row<any>, datahook: any }) => {
+const TableRowWithDrawer = ({ row }: { row: Row<any> }) => {
     const [open, setOpen] = useState(false);
     return (
         <>
@@ -149,62 +99,26 @@ const TableRowWithDrawer = ({ row, datahook }: { row: Row<any>, datahook: any })
                     </TableCell>
                 ))}
             </TableRow>
-            <DeviceInfoDrawer open={open} setOpen={setOpen} device={row.original} datahook={datahook} />
+            <UserInfoDrawer open={open} setOpen={setOpen} user={row.original} />
         </>
     );
 }
 
-function DeviceInfoDrawer({ open, setOpen, device, datahook }: { open: boolean, setOpen: (open: boolean) => void, device: any, datahook: any }) {
-    const resources = useResources({ appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL! });
-    const auth = useAuth({ appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL! });
-    const [user, setUser] = useState(device.assignedTo);
+function UserInfoDrawer({ open, setOpen, user }: { open: boolean, setOpen: (open: boolean) => void, user: any }) {
     return (
         <Drawer handleOnly direction="right" open={open} onOpenChange={setOpen}>
             <DrawerContent>
                 <DrawerHeader style={{ gap: "0px" }}>
-                    <DrawerTitle style={{ color: "var(--qu-text)", fontWeight: "500" }}>{device.name}</DrawerTitle>
+                    <DrawerTitle style={{ color: "var(--qu-text)", fontWeight: "500" }}>{user.name}</DrawerTitle>
                     <DrawerDescription style={{ color: "var(--qu-text-secondary)" }}>Manage this device</DrawerDescription>
                 </DrawerHeader>
                 <Separator />
                 <div className="drawer-mainarea">
-                    <div style={{ fontSize: "20px", fontWeight: "500", marginLeft: "20px", marginTop: "20px" }}>Device Information</div>
-                    <div style={{ fontSize: "14px", fontWeight: "500", marginLeft: "20px", marginTop: "0px", color: "var(--qu-text-secondary)" }}>Information about this device</div>
-                    <CopyValueRow value={device.id} title="Device ID" />
-                    <CopyValueRow value={device.deviceToken} title="Device Token" />
-                    <CopyValueRow value={device.os} title="OS" />
-                    <CopyValueRow value={device.osVersion} title="OS Version" />
-                    <CopyValueRow value={device.architecture} title="OS Architecture" />
-                    {device.online && <><Separator style={{ marginTop: "25px" }} />
-                        <div style={{ fontSize: "20px", fontWeight: "500", marginLeft: "20px", marginTop: "20px" }}>Installed Apps</div>
-                        <div style={{ fontSize: "14px", fontWeight: "500", marginLeft: "20px", marginTop: "0px", color: "var(--qu-text-secondary)" }}>Apps installed on this device</div></>}
-                    {open && device.online && <InstalledAppList device={device} />}
-                    <Separator style={{ marginTop: "20px", marginBottom: "0px" }} />
-                    <div style={{ fontSize: "20px", fontWeight: "500", marginLeft: "20px", marginTop: "20px" }}>Device Assignments</div>
-                    <div style={{ fontSize: "14px", fontWeight: "500", marginLeft: "20px", marginTop: "0px", color: "var(--qu-text-secondary)" }}>Resources assigned to this device</div>
-                    {resources.data?.users && <SelectField label="User" options={resources.data?.users.map((r) => ({ name: r.name, id: r.id, description: r.email, disabled: r.disabled })) || []} value={user} setValue={setUser} />}
-                    <div className="flex flex-row items-center gap-2 p-[20px]">
-                        <div className="flex-1" />
-                        <Button variant={"outline"} onClick={async () => {
-                            await fetch(process.env.NEXT_PUBLIC_BACKEND_URL! + "/admin/device/" + device.id, {
-                                method: "PUT",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                    "Authorization": "Bearer " + auth.data?.sessionId
-                                },
-                                body: JSON.stringify({
-                                    assignedTo: user
-                                })
-                            });
-                            setOpen(false);
-                            setTimeout(() => {
-                                datahook.reload();
-                            }, 1000);
-                        }}><SaveIcon />Save</Button>
-                        <Button variant={"outline"} onClick={() => {
-                            setUser(device.assignedTo);
-                        }}><XIcon />Cancel</Button>
-                    </div>
-                    <Separator />
+                    <div style={{ fontSize: "20px", fontWeight: "500", marginLeft: "20px", marginTop: "20px" }}>User Information</div>
+                    <div style={{ fontSize: "14px", fontWeight: "500", marginLeft: "20px", marginTop: "0px", color: "var(--qu-text-secondary)" }}>Information about this user</div>
+                    <CopyValueRow value={user.id} title="User ID" />
+                    <CopyValueRow value={user.email} title="Email" />
+                    <CopyValueRow value={user.tenant?.name + "/" + user.username} title="Username" />
                 </div>
                 <Separator />
                 <DrawerFooter style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-end" }}>
@@ -259,33 +173,6 @@ export function InstalledAppItem({ app }: { app: any }) {
             </div>
         </div>
     );
-}
-
-function SendMessage({ device, auth }: { device: any, auth: any }) {
-    const [open, setOpen] = useState(false)
-    const [message, setMessage] = useState("")
-    return <>
-        <MessageSquareIcon size={18} style={{ cursor: "pointer", color: "var(--qu-text)" }} onClick={() => setOpen(true)} />
-        <InputDialog title="Send Message" description="Send a message to this device" isOpen={open} onClose={() => setOpen(false)} inputType="text" input={message} setInput={setMessage} onConfirm={async () => {
-            const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/admin/device/" + device.id + "/sendmessage", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${auth.data?.sessionId}`,
-                },
-                body: JSON.stringify({
-                    message: message,
-                }),
-            });
-            if (!response.ok) {
-                toast.error("Failed to send message");
-                return;
-            }
-            toast.success("Message sent");
-            setOpen(false);
-            setMessage("");
-        }} />
-    </>
 }
 
 export function DeviceItem({ device, onClick, extra }: { device: any, onClick?: () => void, extra?: React.ReactNode }) {

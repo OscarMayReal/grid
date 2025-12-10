@@ -13,7 +13,7 @@ export async function getDevicesByTenantId(tenantId: string) {
                 include: {
                     deviceGroup: true
                 }
-            }
+            },
         }
     });
 }

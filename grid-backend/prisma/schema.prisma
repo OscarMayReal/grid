@@ -5,93 +5,94 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+    provider = "prisma-client"
+    output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 model device {
-    id String @id @default(cuid())
-    type String @default("COMPUTER")
-    name String @unique
-    tenantId String
-    addedBy String
-    addedAt DateTime @default(now())
-    assignedTo String?
-    assignedAt DateTime?
-    os String?
-    osVersion String?
-    architecture String?
-    online Boolean @default(false)
-    changedStatusAt DateTime @default(now())
+    id                 String              @id @default(cuid())
+    type               String              @default("COMPUTER")
+    name               String              @unique
+    tenantId           String
+    addedBy            String
+    addedAt            DateTime            @default(now())
+    assignedTo         String?
+    assignedAt         DateTime?
+    os                 String?
+    osVersion          String?
+    architecture       String?
+    online             Boolean             @default(false)
+    changedStatusAt    DateTime            @default(now())
     deviceGroupDevices deviceGroupDevice[]
-    deviceToken String @unique @default(cuid())
-    displayName String
+    deviceToken        String              @unique @default(cuid())
+    displayName        String
 }
 
 model App {
-    id String @id @default(cuid())
-    name String
-    appId String
+    id                String       @id @default(cuid())
+    name              String
+    appId             String
     assignedToGroupId String?
-    assignedToGroup DeviceGroup? @relation(fields: [assignedToGroupId], references: [id])
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now())
-    tenantId String
-    addedBy String
+    assignedToGroup   DeviceGroup? @relation(fields: [assignedToGroupId], references: [id])
+    createdAt         DateTime     @default(now())
+    updatedAt         DateTime     @default(now())
+    tenantId          String
+    addedBy           String
 }
 
 model Policy {
-    id String @id @default(cuid())
-    name String
-    description String?
-    tenantId String
-    addedBy String
-    addedAt DateTime @default(now())
-    assignedTo String?
-    assignedAt DateTime?
-    type String
-    value String
+    id            String      @id @default(cuid())
+    name          String
+    description   String?
+    tenantId      String
+    addedBy       String
+    addedAt       DateTime    @default(now())
+    assignedTo    String?
+    assignedAt    DateTime?
+    type          String
+    value         String
     deviceGroupId String
-    deviceGroup DeviceGroup @relation(fields: [deviceGroupId], references: [id])
-    enabled Boolean @default(true)
+    deviceGroup   DeviceGroup @relation(fields: [deviceGroupId], references: [id])
+    enabled       Boolean     @default(true)
 }
 
 model DeviceGroup {
-    id String @id @default(cuid())
-    name String @unique
-    description String?
-    tenantId String
+    id                 String              @id @default(cuid())
+    name               String              @unique
+    description        String?
+    tenantId           String
     deviceGroupDevices deviceGroupDevice[]
-    policies Policy[]
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now())
-    createdBy String
-    displayName String
-    apps App[]
+    policies           Policy[]
+    createdAt          DateTime            @default(now())
+    updatedAt          DateTime            @default(now())
+    createdBy          String
+    displayName        String
+    apps               App[]
 }
 
 model deviceGroupDevice {
-    id String @id @default(cuid())
+    id            String      @id @default(cuid())
     deviceGroupId String
-    deviceId String
-    device device @relation(fields: [deviceId], references: [id])
-    deviceGroup DeviceGroup @relation(fields: [deviceGroupId], references: [id])
+    deviceId      String
+    device        device      @relation(fields: [deviceId], references: [id])
+    deviceGroup   DeviceGroup @relation(fields: [deviceGroupId], references: [id])
+
     @@unique([deviceGroupId, deviceId])
 }
 
 model Solution {
-    id String @id @default(cuid())
-    description String?
-    packages String[]
-    addScript String
+    id           String   @id @default(cuid())
+    description  String?
+    packages     String[]
+    addScript    String
     removeScript String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now())
-    createdBy String
-    displayName String
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @default(now())
+    createdBy    String
+    displayName  String
 }

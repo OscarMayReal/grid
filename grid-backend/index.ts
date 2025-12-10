@@ -41,7 +41,7 @@ io.on("connection", async (socket) => {
         });
         console.log(socket.rooms);
         io.in("device_" + device.id).emit("device.connected");
-        
+
         //policies
         socket.on("policy.get", async (ack) => {
             console.log("policy.get");
@@ -104,7 +104,7 @@ io.on("connection", async (socket) => {
 });
 
 //admin
-app.use("/admin", verifySessionMiddleware({appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL!, appSecret: process.env.NEXT_PUBLIC_APP_SECRET!}));
+app.use("/admin", verifySessionMiddleware({ appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL!, appSecret: process.env.NEXT_PUBLIC_APP_SECRET! }));
 
 
 //devices
@@ -121,6 +121,22 @@ app.post("/admin/device", async (req, res) => {
 app.get("/admin/devices", async (req, res) => {
     const devices = await getDevicesByTenantId(req.sessionData.tenant.id);
     res.send(devices);
+});
+
+app.put("/admin/device/:id", async (req, res) => {
+    const device = await getDeviceById(req.params.id);
+    if (!device) {
+        return res.status(404).send("Device not found");
+    }
+    var newdevice = structuredClone(device);
+    newdevice.deviceGroupDevices = undefined;
+    var devicenew = await updateDevice({
+        ...newdevice,
+        name: req.body.name,
+        displayName: req.body.displayName || req.body.name,
+        assignedTo: req.body.assignedTo,
+    });
+    res.send(devicenew);
 });
 
 app.get("/admin/device/name/:name", async (req, res) => {

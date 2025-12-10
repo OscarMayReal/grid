@@ -51,7 +51,14 @@ export function DeviceGroupTable({ datahook }: { datahook: any }) {
         columns: [
             {
                 header: "Name",
+                accessorKey: "displayName",
+            },
+            {
+                header: "Groupname",
                 accessorKey: "name",
+                cell: ({ row }) => {
+                    return auth.data?.tenant.name + "/" + row.original.name;
+                },
             },
             {
                 header: "Device Count",
