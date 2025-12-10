@@ -14,6 +14,11 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+enum EnrollmentType {
+    SELFSERVICE
+    ADMIN
+}
+
 model device {
     id                 String              @id @default(cuid())
     type               String              @default("COMPUTER")
@@ -31,6 +36,7 @@ model device {
     deviceGroupDevices deviceGroupDevice[]
     deviceToken        String              @unique @default(cuid())
     displayName        String
+    enrollmentType     EnrollmentType      @default(ADMIN)
 }
 
 model App {
@@ -43,6 +49,8 @@ model App {
     updatedAt         DateTime     @default(now())
     tenantId          String
     addedBy           String
+    required          Boolean      @default(true)
+    autoInstall       Boolean      @default(true)
 }
 
 model Policy {

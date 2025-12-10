@@ -174,6 +174,7 @@ function DeviceInfoDrawer({ open, setOpen, device, datahook }: { open: boolean, 
                     <CopyValueRow value={device.os} title="OS" />
                     <CopyValueRow value={device.osVersion} title="OS Version" />
                     <CopyValueRow value={device.architecture} title="OS Architecture" />
+                    <CopyValueRow value={device.enrollmentType} title="Enrollment Type" />
                     {device.online && <><Separator style={{ marginTop: "25px" }} />
                         <div style={{ fontSize: "20px", fontWeight: "500", marginLeft: "20px", marginTop: "20px" }}>Installed Apps</div>
                         <div style={{ fontSize: "14px", fontWeight: "500", marginLeft: "20px", marginTop: "0px", color: "var(--qu-text-secondary)" }}>Apps installed on this device</div></>}
