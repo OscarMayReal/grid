@@ -1,7 +1,7 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import { getDeviceById, getDevicesByTenantId, createDevice, updateDevice, getDeviceGroupsByTenantId, createDeviceGroup, getDeviceGroupById, removeDeviceFromGroup, getDeviceByName, addDeviceToGroup } from "./deviceFunctions.ts";
+import { getDeviceById, getDevicesByTenantId, createDevice, updateDevice, getDeviceGroupsByTenantId, createDeviceGroup, getDeviceGroupById, removeDeviceFromGroup, getDeviceByName, addDeviceToGroup, getDevicesByUserId } from "./deviceFunctions.ts";
 import { verifySessionMiddleware } from "./middleware.ts";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -368,6 +368,14 @@ app.delete("/admin/app/:id", async (req, res) => {
     const app = await deleteApp(req.params.id);
     res.send(app);
     io.to("group_" + app.assignedToGroupId).emit("flatpak.sync");
+});
+
+//users
+app.use("/user", verifySessionMiddleware({ appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL!, appSecret: process.env.NEXT_PUBLIC_APP_SECRET! }));
+
+app.get("/user/devices", async (req, res) => {
+    const devices = await getDevicesByUserId(req.sessionData.user.id);
+    res.send(devices);
 });
 
 server.listen(3001, () => {

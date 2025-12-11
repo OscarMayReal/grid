@@ -18,6 +18,21 @@ export async function getDevicesByTenantId(tenantId: string) {
     });
 }
 
+export async function getDevicesByUserId(userId: string) {
+    return await prisma.device.findMany({
+        where: {
+            assignedTo: userId
+        },
+        include: {
+            deviceGroupDevices: {
+                include: {
+                    deviceGroup: true
+                }
+            },
+        }
+    });
+}
+
 export async function createDevice(data: device) {
     return await prisma.device.create({
         data: data

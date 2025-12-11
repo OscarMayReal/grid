@@ -11,7 +11,7 @@ import { SettingsIcon } from "lucide-react";
 import { LayoutGrid } from "lucide-react";
 import { motion } from "framer-motion";
 
-export const AccessSidebar = ({ ignoreSize }: { ignoreSize?: boolean }) => {
+export const PortalSidebar = ({ ignoreSize }: { ignoreSize?: boolean }) => {
     const auth = useAuth({ appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL! });
     const router = useRouter();
     const path = usePathname();
@@ -22,7 +22,7 @@ export const AccessSidebar = ({ ignoreSize }: { ignoreSize?: boolean }) => {
     return (
         <div className="sidebar">
             <SidebarUserItem />
-            <SidebarItem title="Account" onClick={() => { router.push("/portal") }} Icon={HomeIcon} active={path === "/portal"} index={0} />
+            <SidebarItem title="Home" onClick={() => { router.push("/portal") }} Icon={HomeIcon} active={path === "/portal"} index={0} />
             <SidebarItem title="Devices" onClick={() => { router.push("/portal/devices") }} Icon={LaptopMinimalIcon} active={path === "/portal/devices"} index={1} />
             <SidebarItem title="Store" onClick={() => { router.push("/portal/store") }} Icon={LayoutGrid} active={path === "/portal/store"} index={2} />
             <SidebarItem title="Settings" onClick={() => { router.push("/portal/settings") }} Icon={SettingsIcon} active={path === "/portal/settings"} index={3} />
@@ -54,8 +54,8 @@ export const AdminSidebar = ({ ignoreSize }: { ignoreSize?: boolean }) => {
             <SidebarItem title="Updates" onClick={() => {router.push("/admin/updates")}} Icon={ArrowUpCircleIcon} active={path === "/admin/updates"} index={6} /> 
             <SidebarItem title="Monitoring" onClick={() => {router.push("/admin/monitoring")}} Icon={ActivityIcon} active={path === "/admin/monitoring"} index={7} /> */}
             <SidebarItem title="Users" onClick={() => { router.push("/admin/users") }} Icon={UsersIcon} active={path === "/admin/users"} index={5} />
-            {/* <Separator style={{margin: "10px 0px"}} />
-            <SidebarItem title="Portal" onClick={() => {router.push("/portal")}} Icon={LayoutDashboardIcon} active={false} index={8} /> */}
+            <Separator style={{ margin: "10px 0px" }} />
+            <SidebarItem title="Portal" onClick={() => { router.push("/portal") }} Icon={LayoutDashboardIcon} active={false} index={8} />
         </div>
     );
 };
