@@ -53,7 +53,8 @@ export async function getDeviceGroupsByTenantId(tenantId: string) {
         include: {
             _count: {
                 select: {
-                    deviceGroupDevices: true
+                    deviceGroupDevices: true,
+                    policies: true
                 }
             },
             deviceGroupDevices: {
@@ -83,7 +84,8 @@ export function getDeviceGroupById(id: string) {
                 include: {
                     device: true
                 }
-            }
+            },
+            policies: true
         }
     });
 }

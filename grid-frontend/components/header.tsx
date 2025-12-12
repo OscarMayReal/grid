@@ -10,9 +10,11 @@ import { useWindowSize } from "@/lib/screensize"
 import { AvatarFallback } from "@/components/ui/avatar"
 import { Avatar } from "@/components/ui/avatar"
 import { About } from "./about"
+import { Drawer, DrawerContent } from "./ui/drawer"
+import { AdminSidebar, PortalSidebar } from "./sidebar"
 
-export const Header = ({title}: {title: string}) => {
-    const auth = useAuth({appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL!});
+export const Header = ({ title }: { title: string }) => {
+    const auth = useAuth({ appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL! });
     const [open, setOpen] = useState(false);
     const path = usePathname();
     const size = useWindowSize();
@@ -26,21 +28,33 @@ export const Header = ({title}: {title: string}) => {
     }, [auth]);
     return (
         <header>
-            {(size.width < 1024 && size.width != 0 && !path.startsWith("/apps")) ? <MenuIcon style={{cursor: "pointer", marginLeft: "15px"}} size="20" onClick={() => {setOpen(true)}} /> : auth.data?.user?.tenant?.logo ? <><img src={auth.data?.user?.tenant?.logo} className="header-logo" /><div className="header-logo-divider" /></> : null}
+            {(size.width < 1024 && size.width != 0 && !path.startsWith("/apps")) ? <MenuIcon style={{ cursor: "pointer", marginLeft: "15px" }} size="20" onClick={() => { setOpen(true) }} /> : auth.data?.user?.tenant?.logo ? <><img src={auth.data?.user?.tenant?.logo} className="header-logo" /><div className="header-logo-divider" /></> : null}
             {/* <img src="/logo.svg" className="header-logo" style={{objectFit: "contain", height: "20px"}} /> */}
-            <div style={{width: "15px"}} />
+            <div style={{ width: "15px" }} />
             <div className="header-title">{title}</div>
-            <div style={{flex: 1}} />
+            <div style={{ flex: 1 }} />
             <HeaderUser />
+            <SidebarDrawer open={open} onOpenChange={setOpen} />
         </header>
     );
 };
 
-export function UserItem({user, Extra, onClick}: {user: any, Extra?: JSX.Element, onClick?: () => void}) {
+export function SidebarDrawer({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
+    const path = usePathname();
+    return (
+        <Drawer direction="left" open={open} onOpenChange={onOpenChange}>
+            <DrawerContent style={{ width: "250px" }}>
+                {path.startsWith("/admin") ? <AdminSidebar ignoreSize /> : <PortalSidebar ignoreSize />}
+            </DrawerContent>
+        </Drawer>
+    );
+}
+
+export function UserItem({ user, Extra, onClick }: { user: any, Extra?: JSX.Element, onClick?: () => void }) {
     return (
         <div className="flex items-center gap-2" onClick={onClick}>
-            <Avatar className="border border-[var(--qu-border-color)]" style={{fontSize: "14px", fontWeight: "400"}}>
-                <AvatarFallback style={{color: "var(--qu-text)"}}>{(user.name.charAt(0).toUpperCase() || "?") + (user.name.charAt(1).toUpperCase() || "?")}</AvatarFallback>
+            <Avatar className="border border-[var(--qu-border-color)]" style={{ fontSize: "14px", fontWeight: "400" }}>
+                <AvatarFallback style={{ color: "var(--qu-text)" }}>{(user.name.charAt(0).toUpperCase() || "?") + (user.name.charAt(1).toUpperCase() || "?")}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left leading-tight">
                 <span className="truncate font-semibold text-sm color-[var(--qu-text)]">{user.name}</span>
@@ -52,7 +66,7 @@ export function UserItem({user, Extra, onClick}: {user: any, Extra?: JSX.Element
 }
 
 function HeaderUser() {
-    const auth = useAuth({appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL!});
+    const auth = useAuth({ appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL! });
     const size = useWindowSize();
     const [infoOpen, setInfoOpen] = useState(false);
     return (
@@ -63,8 +77,8 @@ function HeaderUser() {
                         <div className="header-user-text">{auth.data?.user?.name} ({auth.data?.user?.tenant?.name + "/" + auth.data?.user?.username})</div>
                         <div className="header-company-text">{auth.data?.user?.email} ({auth.data?.user?.tenant?.name})</div>
                     </div>}
-                    <Avatar style={{width: "30px", height: "30px", marginRight: "10px", border: "1px solid var(--qu-border-color)"}}>
-                        <AvatarFallback style={{color: "var(--qu-text)"}}>{auth.data?.user?.name?.charAt(0).toUpperCase() + auth.data?.user?.name?.charAt(1).toUpperCase()}</AvatarFallback>
+                    <Avatar style={{ width: "30px", height: "30px", marginRight: "10px", border: "1px solid var(--qu-border-color)" }}>
+                        <AvatarFallback style={{ color: "var(--qu-text)" }}>{auth.data?.user?.name?.charAt(0).toUpperCase() + auth.data?.user?.name?.charAt(1).toUpperCase()}</AvatarFallback>
                     </Avatar>
                 </div>
             </DropdownMenuTrigger>
@@ -73,7 +87,7 @@ function HeaderUser() {
                     <UserItem user={auth.data?.user!} />
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => {setInfoOpen(true)}}><InfoIcon />About Grid</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { setInfoOpen(true) }}><InfoIcon />About Grid</DropdownMenuItem>
             </DropdownMenuContent>
             <About open={infoOpen} setOpen={setInfoOpen} />
         </DropdownMenu>

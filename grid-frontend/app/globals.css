@@ -2,13 +2,13 @@
 @import "tw-animate-css";
 
 .item-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    border: 1px solid var(--qu-border-color);
-    border-radius: 8px;
-    padding: 10px;
-    margin: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid var(--qu-border-color);
+  border-radius: 8px;
+  padding: 10px;
+  margin: 20px;
 }
 
 b {
@@ -16,11 +16,16 @@ b {
 }
 
 li {
-  list-style-type:circle;
+  list-style-type: circle;
 }
 
 ul {
   margin-left: 20px;
+}
+
+* {
+  --qu-foreground: #666666;
+  --qu-foreground-secondary: #999999;
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -138,6 +143,7 @@ ul {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }

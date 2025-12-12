@@ -13,6 +13,9 @@ export async function getDevicePolicies(deviceId: string) {
                     }
                 }
             }
+        },
+        include: {
+            deviceGroup: true
         }
     });
 }
@@ -44,6 +47,9 @@ export async function getPoliciesByTenantId(tenantId: string) {
     return await prisma.policy.findMany({
         where: {
             tenantId: tenantId
+        },
+        include: {
+            deviceGroup: true
         }
     });
 }
@@ -52,6 +58,9 @@ export async function getPolicyById(id: string) {
     return await prisma.policy.findUnique({
         where: {
             id: id
+        },
+        include: {
+            deviceGroup: true
         }
     });
 }

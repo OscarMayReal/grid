@@ -182,7 +182,7 @@ function DeviceInfoDrawer({ open, setOpen, device, datahook }: { open: boolean, 
                     <Separator style={{ marginTop: "20px", marginBottom: "0px" }} />
                     <div style={{ fontSize: "20px", fontWeight: "500", marginLeft: "20px", marginTop: "20px" }}>Device Assignments</div>
                     <div style={{ fontSize: "14px", fontWeight: "500", marginLeft: "20px", marginTop: "0px", color: "var(--qu-text-secondary)" }}>Resources assigned to this device</div>
-                    {resources.data?.users && <SelectField label="User" options={resources.data?.users.map((r) => ({ name: r.name, id: r.id, description: r.email, disabled: r.disabled })) || []} value={user} setValue={setUser} />}
+                    {resources.data?.users && <SelectField label="User" options={[{ name: "Unassigned", id: null, description: "Don't assign the device to a user" }, ...resources.data?.users.map((r) => ({ name: r.name, id: r.id, description: r.email, disabled: r.disabled }))]} value={user} setValue={setUser} />}
                     <div className="flex flex-row items-center gap-2 p-[20px]">
                         <div className="flex-1" />
                         <Button variant={"outline"} onClick={async () => {

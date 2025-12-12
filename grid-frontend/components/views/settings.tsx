@@ -29,42 +29,37 @@ import { ConfirmDialog } from "@/components/confirmDialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import Editor, { DiffEditor, useMonaco, loader } from '@monaco-editor/react';
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 
-export function PolicyTable({ datahook }: { datahook: any }) {
-    const [policies, setPolicies] = useState<any>([]);
+export function DeviceGroupSettingsTable({ datahook }: { datahook: any }) {
+    const auth = useAuth({ appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL! });
+    const [deviceGroups, setDeviceGroups] = useState<any>([]);
     useEffect(() => {
         if (datahook.loaded) {
-            setPolicies(datahook.data?.["/admin/policies"].data)
+            setDeviceGroups(datahook.data?.["/admin/devicegroups"].data)
         }
     }, [datahook]);
     const table = useReactTable({
-        data: policies,
+        data: deviceGroups,
         columns: [
             {
                 header: "Name",
+                accessorKey: "displayName",
+            },
+            {
+                header: "Groupname",
                 accessorKey: "name",
-            },
-            {
-                header: "Description",
-                accessorKey: "description",
-            },
-            {
-                header: "Type",
-                accessorKey: "type",
-            },
-            {
-                header: "Group",
-                accessorKey: "deviceGroup.name",
-            },
-            {
-                header: "Status",
-                accessorKey: "enabled",
                 cell: ({ row }) => {
                     return (
-                        <div>{row.original.enabled ? "Enabled" : "Disabled"}</div>
+                        <div>{auth.data?.tenant?.name}/{row.original.name}</div>
                     );
                 },
+            },
+            {
+                header: "Settings",
+                accessorKey: "_count.policies",
             },
         ],
         getCoreRowModel: getCoreRowModel(),
@@ -88,7 +83,7 @@ export function PolicyTable({ datahook }: { datahook: any }) {
                 </TableHeader>
                 <TableBody>
                     {table.getRowModel().rows.map((row) => (
-                        <TableRowWithDrawer key={row.id} row={row} datahook={datahook} />
+                        <TableRowLink key={row.id} row={row} datahook={datahook} />
                     ))}
                 </TableBody>
             </Table>
@@ -96,19 +91,18 @@ export function PolicyTable({ datahook }: { datahook: any }) {
     );
 }
 
-const TableRowWithDrawer = ({ row, datahook }: { row: Row<any>, datahook: any }) => {
-    const [open, setOpen] = useState(false);
+const TableRowLink = ({ row, datahook }: { row: Row<any>, datahook: any }) => {
+    const router = useRouter();
     return (
-        <>
-            <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} onClick={() => setOpen(true)}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                ))}
-            </TableRow>
-            <PolicyInfoDrawer open={open} setOpen={setOpen} policy={row.original} datahook={datahook} />
-        </>
+        // <Link href={`/admin/settings/${row.original.id}`}>
+        <TableRow key={row.id} onClick={() => router.push(`/admin/settings/${row.original.id}`)}>
+            {row.getVisibleCells().map((cell) => (
+                <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+            ))}
+        </TableRow>
+        // </Link>
     );
 }
 
