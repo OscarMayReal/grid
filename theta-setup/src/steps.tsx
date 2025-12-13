@@ -187,7 +187,7 @@ function NetworkItem({ network, onConnect }: { network: WiFiNetwork, onConnect: 
 }
 
 export function DeviceUseStep() {
-    const { step, setStep, tenantInfo, setSelectedMode } = useContext(SetupContext)
+    const { step, setStep, tenantInfo, setSelectedMode, setGridConfig } = useContext(SetupContext)
     const [deviceUse, setDeviceUse] = useState(tenantInfo?.id ? "business" : "personal")
     return (
         <>
@@ -267,8 +267,13 @@ export function DeviceUseStep() {
                     setSelectedMode(deviceUse)
                     if (deviceUse == "admin") {
                         setStep(StepsEnum.adminEnrollment)
-                    } else {
+                    } else if (deviceUse == "personal") {
+                        setGridConfig({
+                            dontConnect: true
+                        })
                         setStep(StepsEnum.account)
+                    } else {
+                        setStep(StepsEnum.finished)
                     }
                 }}><ArrowRightIcon /> Continue</Button>
             </CardFooter>
@@ -277,7 +282,7 @@ export function DeviceUseStep() {
 }
 
 export function AdminEnrollmentStep() {
-    const { step, setStep } = useContext(SetupContext)
+    const { step, setStep, gridConfig, setGridConfig } = useContext(SetupContext)
     const [id, setId] = useState("")
     const [token, setToken] = useState("")
     const [url, setUrl] = useState("https://gridbackend.qplus.cloud")
@@ -317,7 +322,14 @@ export function AdminEnrollmentStep() {
             </CardContent>
             <CardFooter>
                 <div className='flex-1' />
-                <Button onClick={() => setStep(StepsEnum.account)}><ArrowRightIcon /> Continue</Button>
+                <Button onClick={() => {
+                    setGridConfig({
+                        deviceId: id,
+                        deviceToken: token,
+                        serverUrl: url
+                    })
+                    setStep(StepsEnum.userCreate)
+                }}><ArrowRightIcon /> Continue</Button>
             </CardFooter>
         </>
     )
@@ -413,7 +425,7 @@ function AccountWelcome({ setStage, setCanContinue, setUser, user }: { setStage:
 }
 
 export function UserCreateStep() {
-    const { step, setStep, user, selectedMode } = useContext(SetupContext)
+    const { step, setStep, user, selectedMode, gridConfig } = useContext(SetupContext)
     const [username, setUsername] = useState(user?.user?.username)
     const [userFullName, setUserFullName] = useState(user?.user?.name)
     const [password, setPassword] = useState("")
@@ -452,15 +464,14 @@ export function UserCreateStep() {
                     window.childprocess.exec("sudo echo \"" + username + ":" + password + "\" | sudo chpasswd")
                     window.childprocess.exec("sudo echo \"" + username + " ALL=(ALL) NOPASSWD:ALL\" | sudo tee -a /etc/sudoers.d/" + username)
                     window.childprocess.exec("sudo passwd -l theta-initial-setup-user")
-                    window.childprocess.exec(`
-                        sudo bash -c 'cat <<EOF > /etc/gdm3/daemon.conf'
-                        [daemon]
-                        AutomaticLoginEnable=False
-                        EOF'
-                    `)
-                    if (selectedMode == "personal") {
-                        window.childprocess.exec(`sudo bash -c 'echo "{\\"dontConnect\\": true}" > /home/${username}/config.json'`)
-                    }
+                    window.childprocess.exec("sudo rm /etc/gdm3/daemon.conf")
+                    window.childprocess.exec("sudo touch /etc/gdm3/daemon.conf")
+                    window.childprocess.exec("sudo bash -c 'echo \"[daemon]\" | sudo tee /etc/gdm3/daemon.conf'")
+                    window.childprocess.exec("sudo bash -c 'echo \"AutomaticLoginEnable=False\" | sudo tee -a /etc/gdm3/daemon.conf'")
+                    window.fs.writeFileSync(`/home/${username}/config.json`, JSON.stringify(gridConfig))
+                    // if (selectedMode == "personal") {
+                    //     window.childprocess.exec(`sudo bash -c 'echo "{\\"dontConnect\\": true}" > /home/${username}/config.json'`)
+                    // }
                     setStep(StepsEnum.finished)
                 }}><ArrowRightIcon /> Continue</Button>
             </CardFooter>

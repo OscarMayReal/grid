@@ -31,7 +31,7 @@ export const SetupContext = createContext({
   selectedMode: "",
   setSelectedMode: (selectedMode: string) => { },
   user: {},
-  setUser: (user: any) => { }
+  setUser: (user: any) => { },
 })
 
 function App() {
