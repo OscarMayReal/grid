@@ -3,6 +3,8 @@
 rm -rf /etc/live
 rm -rf /usr/bin/calamares /usr/share/calamares
 
+apt remove --purge calamares
+
 # Create initial setup user
 useradd -m -s /bin/bash theta-initial-setup-user
 echo "theta-initial-setup-user:init-setup-user" | chpasswd

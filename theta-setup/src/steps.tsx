@@ -452,6 +452,12 @@ export function UserCreateStep() {
                     window.childprocess.exec("sudo echo \"" + username + ":" + password + "\" | sudo chpasswd")
                     window.childprocess.exec("sudo echo \"" + username + " ALL=(ALL) NOPASSWD:ALL\" | sudo tee -a /etc/sudoers.d/" + username)
                     window.childprocess.exec("sudo passwd -l theta-initial-setup-user")
+                    window.childprocess.exec(`
+                        sudo bash -c 'cat <<EOF > /etc/gdm3/daemon.conf'
+                        [daemon]
+                        AutomaticLoginEnable=False
+                        EOF'
+                    `)
                     if (selectedMode == "personal") {
                         window.childprocess.exec(`sudo bash -c 'echo "{\\"dontConnect\\": true}" > /home/${username}/config.json'`)
                     }
