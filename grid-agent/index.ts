@@ -59,7 +59,7 @@ if (config) {
                     // console.log(data);
                     if (data.arches.includes(os.arch() == "x64" ? "x86_64" : "aarch64")) {
                         console.log("Installing " + app.appId);
-                        transaction.addInstall("flathub", "app/" + app.appId + "/" + (os.arch() == "x64" ? "x86_64" : "aarch64") +  "/stable", null);
+                        transaction.addInstall("flathub", "app/" + app.appId + "/" + (os.arch() == "x64" ? "x86_64" : "aarch64") + "/stable", null);
                     } else {
                         console.log("Unsupported architecture for " + app.appId);
                     }
@@ -92,7 +92,7 @@ if (config) {
             transaction.run(null)
         });
     }
-        
+
 
     socket.on("policy.refresh", () => {
         console.log("Refreshing policies");
@@ -183,6 +183,11 @@ if (config) {
         }, 60 * 1000 * 10);
     });
 
-    socket.connect();
-
+    if (!config?.dontConnect) {
+        socket.connect();
+    } else {
+        while (true) {
+            await new Promise((resolve) => setTimeout(resolve, 999999999999999));
+        }
+    }
 }

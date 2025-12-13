@@ -2,7 +2,7 @@ import { Button } from "./components/ui/button";
 import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from "./components/ui/card";
 import { SetupContext, StepsEnum } from "./App";
 import { useContext, useEffect, useRef, useState } from "react";
-import { ArrowRightIcon, BuildingIcon, CheckIcon, GlobeIcon, Grid2X2Icon, Grid2X2XIcon, LaptopMinimalIcon, LogOutIcon, SparklesIcon, UnlockIcon, Wifi, WifiIcon, WifiZeroIcon } from "lucide-react";
+import { ArrowRightIcon, BuildingIcon, CheckIcon, GlobeIcon, Grid2X2Icon, Grid2X2XIcon, LaptopMinimalIcon, LogOutIcon, SparklesIcon, UnlockIcon, UserIcon, Wifi, WifiIcon, WifiZeroIcon } from "lucide-react";
 import { Input } from "./components/ui/input";
 import { Avatar, AvatarFallback } from "./components/ui/avatar";
 import { RadioGroup } from "@/components/ui/radio-group";
@@ -324,11 +324,10 @@ export function AdminEnrollmentStep() {
 }
 
 export function AccountStep() {
-    const { step, setStep } = useContext(SetupContext)
+    const { step, setStep, selectedMode, user, setUser } = useContext(SetupContext)
     const [stage, setStage] = useState("signin")
     const authFrame = useRef<HTMLIFrameElement>(null)
     const [canContinue, setCanContinue] = useState(false)
-    const [user, setUser] = useState(null)
     useEffect(() => {
         if (authFrame.current) {
             console.log("got frame")
@@ -358,7 +357,7 @@ export function AccountStep() {
             {(stage === "welcome" && canContinue) && <CardFooter>
                 <div className='flex-1' />
                 <Button onClick={() => {
-                    setStep(StepsEnum.finished)
+                    setStep(StepsEnum.userCreate)
                 }}><ArrowRightIcon /> Continue</Button>
             </CardFooter>}
         </>
@@ -413,6 +412,56 @@ function AccountWelcome({ setStage, setCanContinue, setUser, user }: { setStage:
     )
 }
 
+export function UserCreateStep() {
+    const { step, setStep, user, selectedMode } = useContext(SetupContext)
+    const [username, setUsername] = useState(user?.user?.username)
+    const [userFullName, setUserFullName] = useState(user?.user?.name)
+    const [password, setPassword] = useState("")
+    const [url, setUrl] = useState("https://gridbackend.qplus.cloud")
+    return (
+        <>
+            <CardHeader>
+                <CardTitle>
+                    Admin Enrollment
+                </CardTitle>
+                <CardDescription>
+                    Enroll this device using an account
+                </CardDescription>
+            </CardHeader>
+            <CardContent className='flex-1'>
+                <div className="w-full h-full flex items-center justify-center gap-10">
+                    <div className="flex flex-col gap-2 w-[382px]">
+                        <UserIcon />
+                        <div className="text-xl font-semibold">Create Account</div>
+                        <div className="text-sm text-muted-foreground">Create an account that will be used to login to this device</div>
+                    </div>
+                    <div className='w-[382px] flex flex-col'>
+                        <div className="pb-2 text-md font-semibold">Full Name</div>
+                        <Input placeholder="Full Name" value={userFullName} onChange={(e) => setUserFullName(e.target.value)} />
+                        <div className="pb-2 text-md font-semibold pt-4">Username</div>
+                        <Input placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
+                        <div className="pb-2 text-md font-semibold pt-4">Password</div>
+                        <Input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                    </div>
+                </div>
+            </CardContent>
+            <CardFooter>
+                <div className='flex-1' />
+                <Button onClick={() => {
+                    window.childprocess.exec("sudo useradd -m -s /bin/bash -G sudo -c \"" + userFullName + "\" " + username)
+                    window.childprocess.exec("sudo echo \"" + username + ":" + password + "\" | sudo chpasswd")
+                    window.childprocess.exec("sudo echo \"" + username + " ALL=(ALL) NOPASSWD:ALL\" | sudo tee -a /etc/sudoers.d/" + username)
+                    window.childprocess.exec("sudo passwd -l theta-initial-setup-user")
+                    if (selectedMode == "personal") {
+                        window.childprocess.exec(`sudo bash -c 'echo "{\\"dontConnect\\": true}" > /home/${username}/config.json'`)
+                    }
+                    setStep(StepsEnum.finished)
+                }}><ArrowRightIcon /> Continue</Button>
+            </CardFooter>
+        </>
+    )
+}
+
 export function FinishedStep() {
     return (
         <>
@@ -432,7 +481,7 @@ export function FinishedStep() {
                         <div className="text-sm text-muted-foreground">Your device has been successfully set up</div>
                         <Button variant={"outline"} onClick={() => {
                             window.childprocess.exec("sudo rm /etc/markers/unsetup-marker")
-                            window.close()
+                            window.childprocess.exec("sudo reboot -h now")
                         }}><ArrowRightIcon /> Continue</Button>
                     </div>
                 </div>

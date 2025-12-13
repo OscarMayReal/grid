@@ -7,7 +7,7 @@ import type { WiFiNetwork } from "node-wifi"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './components/ui/dialog'
 import { Scanner } from '@yudiel/react-qr-scanner'
 import { ButtonGroup } from './components/ui/button-group'
-import { InitStep, NetworkStep, AccountStep, DeviceUseStep, AdminEnrollmentStep, EnrollInfoStep, FinishedStep } from './steps'
+import { InitStep, NetworkStep, AccountStep, DeviceUseStep, AdminEnrollmentStep, EnrollInfoStep, FinishedStep, UserCreateStep } from './steps'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './components/ui/dropdown-menu'
 
 export enum StepsEnum {
@@ -17,7 +17,8 @@ export enum StepsEnum {
   account,
   enrollInfo,
   adminEnrollment,
-  finished
+  finished,
+  userCreate
 }
 
 export const SetupContext = createContext({
@@ -28,7 +29,9 @@ export const SetupContext = createContext({
   gridConfig: {},
   setGridConfig: (gridConfig: any) => { },
   selectedMode: "",
-  setSelectedMode: (selectedMode: string) => { }
+  setSelectedMode: (selectedMode: string) => { },
+  user: {},
+  setUser: (user: any) => { }
 })
 
 function App() {
@@ -36,8 +39,9 @@ function App() {
   const [tenantInfo, setTenantInfo] = useState({})
   const [gridConfig, setGridConfig] = useState({})
   const [selectedMode, setSelectedMode] = useState("")
+  const [user, setUser] = useState({})
   return (
-    <SetupContext.Provider value={{ step, setStep, tenantInfo, setTenantInfo, gridConfig, setGridConfig, selectedMode, setSelectedMode }}>
+    <SetupContext.Provider value={{ step, setStep, tenantInfo, setTenantInfo, gridConfig, setGridConfig, selectedMode, setSelectedMode, user, setUser }}>
       <>
         <div className='w-full h-full flex flex-col items-center justify-center'>
           <Card className='mainwindow'>
@@ -48,6 +52,7 @@ function App() {
             {step === StepsEnum.adminEnrollment && <AdminEnrollmentStep />}
             {step === StepsEnum.enrollInfo && <EnrollInfoStep />}
             {step === StepsEnum.finished && <FinishedStep />}
+            {step === StepsEnum.userCreate && <UserCreateStep />}
           </Card>
         </div>
         <Bar />
