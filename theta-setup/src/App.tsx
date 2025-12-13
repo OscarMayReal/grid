@@ -7,7 +7,7 @@ import type { WiFiNetwork } from "node-wifi"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './components/ui/dialog'
 import { Scanner } from '@yudiel/react-qr-scanner'
 import { ButtonGroup } from './components/ui/button-group'
-import { InitStep, NetworkStep, AccountStep, DeviceUseStep, AdminEnrollmentStep } from './steps'
+import { InitStep, NetworkStep, AccountStep, DeviceUseStep, AdminEnrollmentStep, EnrollInfoStep, FinishedStep } from './steps'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './components/ui/dropdown-menu'
 
 export enum StepsEnum {
@@ -15,18 +15,29 @@ export enum StepsEnum {
   network,
   deviceUse,
   account,
-  adminEnrollment
+  enrollInfo,
+  adminEnrollment,
+  finished
 }
 
 export const SetupContext = createContext({
   step: StepsEnum.init,
-  setStep: (step: StepsEnum) => { }
+  setStep: (step: StepsEnum) => { },
+  tenantInfo: {},
+  setTenantInfo: (tenantInfo: any) => { },
+  gridConfig: {},
+  setGridConfig: (gridConfig: any) => { },
+  selectedMode: "",
+  setSelectedMode: (selectedMode: string) => { }
 })
 
 function App() {
   const [step, setStep] = useState(StepsEnum.init)
+  const [tenantInfo, setTenantInfo] = useState({})
+  const [gridConfig, setGridConfig] = useState({})
+  const [selectedMode, setSelectedMode] = useState("")
   return (
-    <SetupContext.Provider value={{ step, setStep }}>
+    <SetupContext.Provider value={{ step, setStep, tenantInfo, setTenantInfo, gridConfig, setGridConfig, selectedMode, setSelectedMode }}>
       <>
         <div className='w-full h-full flex flex-col items-center justify-center'>
           <Card className='mainwindow'>
@@ -35,6 +46,8 @@ function App() {
             {step === StepsEnum.network && <NetworkStep />}
             {step === StepsEnum.account && <AccountStep />}
             {step === StepsEnum.adminEnrollment && <AdminEnrollmentStep />}
+            {step === StepsEnum.enrollInfo && <EnrollInfoStep />}
+            {step === StepsEnum.finished && <FinishedStep />}
           </Card>
         </div>
         <Bar />

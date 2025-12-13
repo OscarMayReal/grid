@@ -12,7 +12,7 @@ else
 fi
 
 # Check for unsetup-marker first (only if not in live boot)
-if [ -f /etc/live/unsetup-marker ] && [ ! -f /etc/live/live-boot-marker ]; then
+if [ -f /etc/markers/unsetup-marker ] && [ ! -f /etc/live/live-boot-marker ]; then
     cd /grid/theta-setup && exec npm run app
 elif [ ! -f /etc/live/live-boot-marker ]; then
     exec /usr/local/bin/node /grid/grid-agent/index.ts

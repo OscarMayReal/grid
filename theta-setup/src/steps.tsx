@@ -2,7 +2,7 @@ import { Button } from "./components/ui/button";
 import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from "./components/ui/card";
 import { SetupContext, StepsEnum } from "./App";
 import { useContext, useEffect, useRef, useState } from "react";
-import { ArrowRightIcon, CheckIcon, GlobeIcon, Grid2X2Icon, Grid2X2XIcon, LaptopMinimalIcon, SparklesIcon, UnlockIcon, Wifi, WifiIcon, WifiZeroIcon } from "lucide-react";
+import { ArrowRightIcon, BuildingIcon, CheckIcon, GlobeIcon, Grid2X2Icon, Grid2X2XIcon, LaptopMinimalIcon, LogOutIcon, SparklesIcon, UnlockIcon, Wifi, WifiIcon, WifiZeroIcon } from "lucide-react";
 import { Input } from "./components/ui/input";
 import { Avatar, AvatarFallback } from "./components/ui/avatar";
 import { RadioGroup } from "@/components/ui/radio-group";
@@ -14,7 +14,25 @@ import { Separator } from "./components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./components/ui/accordion";
 
 export function InitStep() {
-    const { step, setStep } = useContext(SetupContext)
+    const { step, setStep, gridConfig, setGridConfig, tenantInfo, setTenantInfo } = useContext(SetupContext)
+    useEffect(() => {
+        console.log(window.os.homeDir() + "/config.json")
+        window.fs.access(window.os.homeDir() + "/config.json").then(() => {
+            window.fs.readFile(window.os.homeDir() + "/config.json").then((data) => {
+                console.log(data)
+                setGridConfig(JSON.parse(data.toString()))
+                var localgridconfig = JSON.parse(data.toString())
+                fetch(localgridconfig["serverUrl"] + "/info/tenant/fromdevice?deviceId=" + localgridconfig["deviceId"] + "&deviceToken=" + localgridconfig["deviceToken"]).then((res) => {
+                    res.json().then((data) => {
+                        console.log(data.tenant)
+                        setTenantInfo(data.tenant)
+                    })
+                })
+            })
+        }).catch(() => {
+            return
+        })
+    }, [setGridConfig, setTenantInfo])
     return (
         <>
             <CardHeader>
@@ -31,6 +49,38 @@ export function InitStep() {
                         <SparklesIcon />
                         <div className="text-xl font-semibold">Welcome to ThetaOS</div>
                         <div className="text-sm text-muted-foreground">The powerful and secure operating system for your device</div>
+                    </div>
+                </div>
+            </CardContent>
+            <CardFooter>
+                <div className='flex-1' />
+                <Button onClick={() => setStep(tenantInfo?.id ? StepsEnum.enrollInfo : StepsEnum.network)}><ArrowRightIcon /> Get Started</Button>
+            </CardFooter>
+        </>
+    )
+}
+
+export function EnrollInfoStep() {
+    const { step, setStep, gridConfig, setGridConfig, tenantInfo, setTenantInfo } = useContext(SetupContext)
+    return (
+        <>
+            <CardHeader>
+                <CardTitle>
+                    Enrollment Information
+                </CardTitle>
+                <CardDescription>
+                    Enter your enrollment information
+                </CardDescription>
+            </CardHeader>
+            <CardContent className='flex-1'>
+                <div className="w-full h-full flex items-center justify-center gap-10">
+                    <div className="flex flex-col gap-2 max-w-[382px]">
+                        <div className="flex flex-row items-center gap-2">
+                            <BuildingIcon className="flex-shrink-0" />
+                        </div>
+                        <div className="text-xl font-semibold">This device is managed by {tenantInfo["displayName"] || tenantInfo["name"]}</div>
+                        <div className="text-sm text-muted-foreground">Your IT administrator will be able to manage this device</div>
+                        <img src={tenantInfo["logo"]} className="w-fit h-[30px]" alt="" />
                     </div>
                 </div>
             </CardContent>
@@ -137,8 +187,8 @@ function NetworkItem({ network, onConnect }: { network: WiFiNetwork, onConnect: 
 }
 
 export function DeviceUseStep() {
-    const { step, setStep } = useContext(SetupContext)
-    const [deviceUse, setDeviceUse] = useState("personal")
+    const { step, setStep, tenantInfo, setSelectedMode } = useContext(SetupContext)
+    const [deviceUse, setDeviceUse] = useState(tenantInfo?.id ? "business" : "personal")
     return (
         <>
             <CardHeader>
@@ -157,7 +207,7 @@ export function DeviceUseStep() {
                         <div className="text-sm text-muted-foreground">This will determine the level of access and control you have over this device</div>
                     </div>
                     <RadioGroup value={deviceUse} onValueChange={setDeviceUse} className='w-full max-w-96 gap-2' defaultValue='personal'>
-                        <div className='border-input has-data-[state=checked]:border-primary/50 relative flex w-full items-center gap-2 rounded-md border p-4 shadow-xs outline-none'>
+                        {!tenantInfo?.id && <div className='border-input has-data-[state=checked]:border-primary/50 relative flex w-full items-center gap-2 rounded-md border p-4 shadow-xs outline-none'>
                             <RadioGroupItem
                                 value='personal'
                                 id={`personal`}
@@ -173,7 +223,7 @@ export function DeviceUseStep() {
                                     Link with a personal account with full control
                                 </p>
                             </div>
-                        </div>
+                        </div>}
 
                         <div className='border-input has-data-[state=checked]:border-primary/50 relative flex w-full items-center gap-2 rounded-md border p-4 shadow-xs outline-none'>
                             <RadioGroupItem
@@ -187,12 +237,12 @@ export function DeviceUseStep() {
                                     ThetaOS Business
                                 </Label>
                                 <p id={`business-description`} className='text-muted-foreground text-xs'>
-                                    Sign in with your business account
+                                    Sign in with your {tenantInfo?.displayName || tenantInfo?.name || "business"} account
                                 </p>
                             </div>
                         </div>
 
-                        <div className='border-input has-data-[state=checked]:border-primary/50 relative flex w-full items-center gap-2 rounded-md border p-4 shadow-xs outline-none'>
+                        {!tenantInfo?.id && <div className='border-input has-data-[state=checked]:border-primary/50 relative flex w-full items-center gap-2 rounded-md border p-4 shadow-xs outline-none'>
                             <RadioGroupItem
                                 value='admin'
                                 id={`admin`}
@@ -207,13 +257,20 @@ export function DeviceUseStep() {
                                     Enroll this device using ID and Token
                                 </p>
                             </div>
-                        </div>
+                        </div>}
                     </RadioGroup>
                 </div>
             </CardContent>
             <CardFooter>
                 <div className='flex-1' />
-                <Button onClick={() => setStep(deviceUse == "admin" ? StepsEnum.adminEnrollment : StepsEnum.account)}><ArrowRightIcon /> Continue</Button>
+                <Button onClick={() => {
+                    setSelectedMode(deviceUse)
+                    if (deviceUse == "admin") {
+                        setStep(StepsEnum.adminEnrollment)
+                    } else {
+                        setStep(StepsEnum.account)
+                    }
+                }}><ArrowRightIcon /> Continue</Button>
             </CardFooter>
         </>
     )
@@ -241,13 +298,16 @@ export function AdminEnrollmentStep() {
                         <div className="text-xl font-semibold">Enroll Device</div>
                         <div className="text-sm text-muted-foreground">Enter the ID and Token found in your Grid Admin Console</div>
                     </div>
-                    <div className='w-[382px] flex flex-col gap-2'>
+                    <div className='w-[382px] flex flex-col'>
+                        <div className="pb-2 text-md font-semibold">ID</div>
                         <Input placeholder="ID" value={id} onChange={(e) => setId(e.target.value)} />
+                        <div className="pb-2 text-md font-semibold pt-4">Token</div>
                         <Input placeholder="Token" value={token} onChange={(e) => setToken(e.target.value)} />
                         <Accordion type="single" collapsible>
                             <AccordionItem value="Advanced">
                                 <AccordionTrigger>Advanced Options</AccordionTrigger>
                                 <AccordionContent>
+                                    <div className="text-md font-semibold pb-2">Grid URL</div>
                                     <Input placeholder="Grid URL" value={url} onChange={(e) => setUrl(e.target.value)} />
                                 </AccordionContent>
                             </AccordionItem>
@@ -267,6 +327,7 @@ export function AccountStep() {
     const { step, setStep } = useContext(SetupContext)
     const [stage, setStage] = useState("signin")
     const authFrame = useRef<HTMLIFrameElement>(null)
+    const [canContinue, setCanContinue] = useState(false)
     useEffect(() => {
         if (authFrame.current) {
             console.log("got frame")
@@ -290,18 +351,19 @@ export function AccountStep() {
             </CardHeader>
             <CardContent className='flex-1'>
                 {/* {stage === "signin" && <QuntemAccountSignIn setStage={setStage} />} */}
-                {stage === "signin" && <iframe ref={authFrame} className="w-full h-full rounded-md" src="https://keystoneapi.qplus.cloud/auth/signin?redirectTo=https://theta-setup-redir.netlify.app" />}
-                {stage === "welcome" && <AccountWelcome />}
+                {stage === "signin" && <iframe ref={authFrame} className="w-full h-full rounded-md" src="https://keystoneapi.qplus.cloud/auth/signin?redirectTo=https://theta-setup-redir.netlify.app&lts=true" />}
+                {stage === "welcome" && <AccountWelcome setStage={setStage} setCanContinue={setCanContinue} />}
             </CardContent>
-            {stage === "welcome" && <CardFooter>
+            {(stage === "welcome" && canContinue) && <CardFooter>
                 <div className='flex-1' />
-                <Button onClick={() => setStep(StepsEnum.deviceUse)}><ArrowRightIcon /> Continue</Button>
+                <Button onClick={() => setStep(StepsEnum.finished)}><ArrowRightIcon /> Continue</Button>
             </CardFooter>}
         </>
     )
 }
 
-function AccountWelcome() {
+function AccountWelcome({ setStage, setCanContinue }: { setStage: (stage: string) => void, setCanContinue: (canContinue: boolean) => void }) {
+    const { tenantInfo } = useContext(SetupContext)
     const [user, setUser] = useState(null)
     useEffect(() => {
         fetch("https://keystoneapi.qplus.cloud/auth/getsession", {
@@ -309,10 +371,33 @@ function AccountWelcome() {
             redirect: "manual"
         }).then((res) => res.json()).then((data) => {
             setUser(data)
+            if (tenantInfo?.id && tenantInfo?.id != data.user?.tenant?.id) {
+                setCanContinue(false)
+            } else {
+                setCanContinue(true)
+            }
         })
-    }, [])
+    }, [tenantInfo])
     if (!user) {
         return <div>Loading...</div>
+    }
+    if (tenantInfo?.id && tenantInfo?.id != user.user?.tenant?.id) {
+        return <div className="flex flex-col items-center justify-center h-full gap-2">
+            <Avatar className="w-15 h-15">
+                <AvatarFallback className="text-2xl">{user.user?.name.split("")[0].toUpperCase() + user.user?.name.split("")[1].toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <h1 className="text-2xl font-bold">Welcome {user.user?.name}</h1>
+            <p className="text-lg">{user.user?.email}</p>
+            <p className="text-center">It looks like this account is not associated with the tenant "{tenantInfo?.name}"<br /> Please sign out and sign in with the correct account.</p>
+            <Button onClick={() => {
+                fetch("https://keystoneapi.qplus.cloud/auth/logout", {
+                    credentials: "include",
+                    redirect: "manual"
+                }).then(() => {
+                    setStage("signin")
+                })
+            }}><LogOutIcon /> Sign Out</Button>
+        </div>
     }
     return (
         <div className="flex flex-col items-center justify-center h-full gap-2">
@@ -323,5 +408,33 @@ function AccountWelcome() {
             <p className="text-lg">{user.user?.email}</p>
             <p>{user.user?.tenant?.id ? "Managed Quntem Account (" + user.user.tenant.name + ")" : "Personal Quntem Account"}</p>
         </div>
+    )
+}
+
+export function FinishedStep() {
+    return (
+        <>
+            <CardHeader>
+                <CardTitle>
+                    Finished
+                </CardTitle>
+                <CardDescription>
+                    Your device has been successfully set up
+                </CardDescription>
+            </CardHeader>
+            <CardContent className='flex-1'>
+                <div className="w-full h-full flex items-center justify-center gap-10">
+                    <div className="flex flex-col gap-2 w-[382px]">
+                        <CheckIcon />
+                        <div className="text-xl font-semibold">Device Set Up Complete</div>
+                        <div className="text-sm text-muted-foreground">Your device has been successfully set up</div>
+                        <Button variant={"outline"} onClick={() => {
+                            window.fs.delete("/etc/markers/unsetup-marker")
+                            window.close()
+                        }}><ArrowRightIcon /> Continue</Button>
+                    </div>
+                </div>
+            </CardContent>
+        </>
     )
 }
