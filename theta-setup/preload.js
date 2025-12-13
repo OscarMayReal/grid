@@ -32,6 +32,6 @@ contextBridge.exposeInMainWorld("os", {
   homeDir: () => os.homedir(),
 })
 
-contextBridge.exposeInMainWorld("os", {
+contextBridge.exposeInMainWorld("childprocess", {
   exec: (command) => child_process.execSync(command)
 })

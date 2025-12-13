@@ -431,7 +431,7 @@ export function FinishedStep() {
                         <div className="text-xl font-semibold">Device Set Up Complete</div>
                         <div className="text-sm text-muted-foreground">Your device has been successfully set up</div>
                         <Button variant={"outline"} onClick={() => {
-                            window.os.exec("sudo rm /etc/markers/unsetup-marker")
+                            window.childprocess.exec("sudo rm /etc/markers/unsetup-marker")
                             window.close()
                         }}><ArrowRightIcon /> Continue</Button>
                     </div>
