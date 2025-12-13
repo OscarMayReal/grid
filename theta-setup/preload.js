@@ -2,6 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron')
 const wifi = require('node-wifi')
 const fs = require("fs/promises")
 const os = require("os")
+const child_process = require("child_process")
 
 wifi.init({
   iface: null // auto-detect
@@ -29,4 +30,8 @@ contextBridge.exposeInMainWorld("fs", {
 
 contextBridge.exposeInMainWorld("os", {
   homeDir: () => os.homedir(),
+})
+
+contextBridge.exposeInMainWorld("os", {
+  exec: (command) => child_process.execSync(command)
 })

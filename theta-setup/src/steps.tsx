@@ -328,6 +328,7 @@ export function AccountStep() {
     const [stage, setStage] = useState("signin")
     const authFrame = useRef<HTMLIFrameElement>(null)
     const [canContinue, setCanContinue] = useState(false)
+    const [user, setUser] = useState(null)
     useEffect(() => {
         if (authFrame.current) {
             console.log("got frame")
@@ -352,19 +353,20 @@ export function AccountStep() {
             <CardContent className='flex-1'>
                 {/* {stage === "signin" && <QuntemAccountSignIn setStage={setStage} />} */}
                 {stage === "signin" && <iframe ref={authFrame} className="w-full h-full rounded-md" src="https://keystoneapi.qplus.cloud/auth/signin?redirectTo=https://theta-setup-redir.netlify.app&lts=true" />}
-                {stage === "welcome" && <AccountWelcome setStage={setStage} setCanContinue={setCanContinue} />}
+                {stage === "welcome" && <AccountWelcome setStage={setStage} setCanContinue={setCanContinue} setUser={setUser} user={user} />}
             </CardContent>
             {(stage === "welcome" && canContinue) && <CardFooter>
                 <div className='flex-1' />
-                <Button onClick={() => setStep(StepsEnum.finished)}><ArrowRightIcon /> Continue</Button>
+                <Button onClick={() => {
+                    setStep(StepsEnum.finished)
+                }}><ArrowRightIcon /> Continue</Button>
             </CardFooter>}
         </>
     )
 }
 
-function AccountWelcome({ setStage, setCanContinue }: { setStage: (stage: string) => void, setCanContinue: (canContinue: boolean) => void }) {
+function AccountWelcome({ setStage, setCanContinue, setUser, user }: { setStage: (stage: string) => void, setCanContinue: (canContinue: boolean) => void, setUser: (user: any) => void, user: any }) {
     const { tenantInfo } = useContext(SetupContext)
-    const [user, setUser] = useState(null)
     useEffect(() => {
         fetch("https://keystoneapi.qplus.cloud/auth/getsession", {
             credentials: "include",
@@ -429,7 +431,7 @@ export function FinishedStep() {
                         <div className="text-xl font-semibold">Device Set Up Complete</div>
                         <div className="text-sm text-muted-foreground">Your device has been successfully set up</div>
                         <Button variant={"outline"} onClick={() => {
-                            window.fs.delete("/etc/markers/unsetup-marker")
+                            window.os.exec("sudo rm /etc/markers/unsetup-marker")
                             window.close()
                         }}><ArrowRightIcon /> Continue</Button>
                     </div>
