@@ -1,0 +1,21 @@
+#!/bin/sh
+
+git clone https://github.com/oscarmayreal/theta
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+source $HOME/.local/bin/env
+
+cd /theta/shell
+
+uv venv
+
+source .venv/bin/activate
+
+uv sync
+
+uv pip install six
+
+cd /theta/netspace
+
+npm install
+

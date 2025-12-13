@@ -11,9 +11,11 @@ else
     echo "Current user is 'live', skipping deletion"
 fi
 
-if [ ! -f /etc/live/live-boot-marker ]; then
+# Check for unsetup-marker first (only if not in live boot)
+if [ -f /etc/markers/unsetup-marker ] && [ ! -f /etc/live/live-boot-marker ]; then
+    cd /grid/theta-setup && exec npm run app
+elif [ ! -f /etc/live/live-boot-marker ]; then
     exec /usr/local/bin/node /grid/grid-agent/index.ts
 else 
     exec sudo calamares
 fi
-
