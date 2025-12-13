@@ -7,14 +7,15 @@ import type { WiFiNetwork } from "node-wifi"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './components/ui/dialog'
 import { Scanner } from '@yudiel/react-qr-scanner'
 import { ButtonGroup } from './components/ui/button-group'
-import { InitStep, NetworkStep, AccountStep, DeviceUseStep } from './steps'
+import { InitStep, NetworkStep, AccountStep, DeviceUseStep, AdminEnrollmentStep } from './steps'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './components/ui/dropdown-menu'
 
 export enum StepsEnum {
   init,
   network,
   deviceUse,
-  account
+  account,
+  adminEnrollment
 }
 
 export const SetupContext = createContext({
@@ -33,6 +34,7 @@ function App() {
             {step === StepsEnum.deviceUse && <DeviceUseStep />}
             {step === StepsEnum.network && <NetworkStep />}
             {step === StepsEnum.account && <AccountStep />}
+            {step === StepsEnum.adminEnrollment && <AdminEnrollmentStep />}
           </Card>
         </div>
         <Bar />

@@ -2,7 +2,7 @@ import { Button } from "./components/ui/button";
 import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from "./components/ui/card";
 import { SetupContext, StepsEnum } from "./App";
 import { useContext, useEffect, useRef, useState } from "react";
-import { ArrowRightIcon, CheckIcon, GlobeIcon, LaptopMinimalIcon, SparklesIcon, UnlockIcon, Wifi, WifiIcon, WifiZeroIcon } from "lucide-react";
+import { ArrowRightIcon, CheckIcon, GlobeIcon, Grid2X2Icon, Grid2X2XIcon, LaptopMinimalIcon, SparklesIcon, UnlockIcon, Wifi, WifiIcon, WifiZeroIcon } from "lucide-react";
 import { Input } from "./components/ui/input";
 import { Avatar, AvatarFallback } from "./components/ui/avatar";
 import { RadioGroup } from "@/components/ui/radio-group";
@@ -138,6 +138,7 @@ function NetworkItem({ network, onConnect }: { network: WiFiNetwork, onConnect: 
 
 export function DeviceUseStep() {
     const { step, setStep } = useContext(SetupContext)
+    const [deviceUse, setDeviceUse] = useState("personal")
     return (
         <>
             <CardHeader>
@@ -155,20 +156,20 @@ export function DeviceUseStep() {
                         <div className="text-xl font-semibold">How will this device be used?</div>
                         <div className="text-sm text-muted-foreground">This will determine the level of access and control you have over this device</div>
                     </div>
-                    <RadioGroup className='w-full max-w-96 gap-2' defaultValue='1'>
+                    <RadioGroup value={deviceUse} onValueChange={setDeviceUse} className='w-full max-w-96 gap-2' defaultValue='personal'>
                         <div className='border-input has-data-[state=checked]:border-primary/50 relative flex w-full items-center gap-2 rounded-md border p-4 shadow-xs outline-none'>
                             <RadioGroupItem
-                                value='1'
-                                id={`1`}
+                                value='personal'
+                                id={`personal`}
                                 aria-label='plan-radio-basic'
-                                aria-describedby={`1-description`}
+                                aria-describedby={`personal-description`}
                                 className='size-5 after:absolute after:inset-0 [&_svg]:size-3'
                             />
                             <div className='grid grow gap-2'>
-                                <Label htmlFor={`1`} className='justify-between'>
+                                <Label htmlFor={`personal`} className='justify-between'>
                                     Personal Use
                                 </Label>
-                                <p id={`1-description`} className='text-muted-foreground text-xs'>
+                                <p id={`personal-description`} className='text-muted-foreground text-xs'>
                                     Link with a personal account with full control
                                 </p>
                             </div>
@@ -176,21 +177,82 @@ export function DeviceUseStep() {
 
                         <div className='border-input has-data-[state=checked]:border-primary/50 relative flex w-full items-center gap-2 rounded-md border p-4 shadow-xs outline-none'>
                             <RadioGroupItem
-                                value='2'
-                                id={`2`}
-                                aria-describedby={`2-description`}
+                                value='business'
+                                id={`business`}
+                                aria-describedby={`business-description`}
                                 className='size-5 after:absolute after:inset-0 [&_svg]:size-3'
                             />
                             <div className='grid grow gap-2'>
-                                <Label htmlFor={`2`} className='justify-between'>
+                                <Label htmlFor={`business`} className='justify-between'>
                                     ThetaOS Business
                                 </Label>
-                                <p id={`2-description`} className='text-muted-foreground text-xs'>
-                                    Manage this device with Quntem Grid
+                                <p id={`business-description`} className='text-muted-foreground text-xs'>
+                                    Sign in with your business account
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className='border-input has-data-[state=checked]:border-primary/50 relative flex w-full items-center gap-2 rounded-md border p-4 shadow-xs outline-none'>
+                            <RadioGroupItem
+                                value='admin'
+                                id={`admin`}
+                                aria-describedby={`admin-description`}
+                                className='size-5 after:absolute after:inset-0 [&_svg]:size-3'
+                            />
+                            <div className='grid grow gap-2'>
+                                <Label htmlFor={`admin`} className='justify-between'>
+                                    Grid Admin Enrollment
+                                </Label>
+                                <p id={`admin-description`} className='text-muted-foreground text-xs'>
+                                    Enroll this device using ID and Token
                                 </p>
                             </div>
                         </div>
                     </RadioGroup>
+                </div>
+            </CardContent>
+            <CardFooter>
+                <div className='flex-1' />
+                <Button onClick={() => setStep(deviceUse == "admin" ? StepsEnum.adminEnrollment : StepsEnum.account)}><ArrowRightIcon /> Continue</Button>
+            </CardFooter>
+        </>
+    )
+}
+
+export function AdminEnrollmentStep() {
+    const { step, setStep } = useContext(SetupContext)
+    const [id, setId] = useState("")
+    const [token, setToken] = useState("")
+    const [url, setUrl] = useState("https://gridbackend.qplus.cloud")
+    return (
+        <>
+            <CardHeader>
+                <CardTitle>
+                    Admin Enrollment
+                </CardTitle>
+                <CardDescription>
+                    Enroll this device using ID and Token
+                </CardDescription>
+            </CardHeader>
+            <CardContent className='flex-1'>
+                <div className="w-full h-full flex items-center justify-center gap-10">
+                    <div className="flex flex-col gap-2 w-[382px]">
+                        <Grid2X2Icon />
+                        <div className="text-xl font-semibold">Enroll Device</div>
+                        <div className="text-sm text-muted-foreground">Enter the ID and Token found in your Grid Admin Console</div>
+                    </div>
+                    <div className='w-[382px] flex flex-col gap-2'>
+                        <Input placeholder="ID" value={id} onChange={(e) => setId(e.target.value)} />
+                        <Input placeholder="Token" value={token} onChange={(e) => setToken(e.target.value)} />
+                        <Accordion type="single" collapsible>
+                            <AccordionItem value="Advanced">
+                                <AccordionTrigger>Advanced Options</AccordionTrigger>
+                                <AccordionContent>
+                                    <Input placeholder="Grid URL" value={url} onChange={(e) => setUrl(e.target.value)} />
+                                </AccordionContent>
+                            </AccordionItem>
+                        </Accordion>
+                    </div>
                 </div>
             </CardContent>
             <CardFooter>
