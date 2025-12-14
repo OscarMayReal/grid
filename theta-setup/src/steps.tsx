@@ -468,7 +468,8 @@ export function UserCreateStep() {
                     window.childprocess.exec("sudo touch /etc/gdm3/daemon.conf")
                     window.childprocess.exec("sudo bash -c 'echo \"[daemon]\" | sudo tee /etc/gdm3/daemon.conf'")
                     window.childprocess.exec("sudo bash -c 'echo \"AutomaticLoginEnable=False\" | sudo tee -a /etc/gdm3/daemon.conf'")
-                    window.fs.writeFile(`/home/${username}/config.json`, JSON.stringify(gridConfig))
+                    window.fs.writeFile(`./gridconfig.json`, JSON.stringify(gridConfig))
+                    window.childprocess.exec("sudo cp ./gridconfig.json /home/" + username + "/config.json")
                     // if (selectedMode == "personal") {
                     //     window.childprocess.exec(`sudo bash -c 'echo "{\\"dontConnect\\": true}" > /home/${username}/config.json'`)
                     // }
