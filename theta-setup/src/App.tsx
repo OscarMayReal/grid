@@ -125,7 +125,7 @@ function QREnrollDialog({ open, setOpen }: { open: boolean, setOpen: (open: bool
           ssid: qrData.wifi.ssid,
           password: qrData.wifi.password
         }).then(() => {
-          window.fs.writeFileSync(window.os.homeDir() + "/config.json", JSON.stringify(qrData.gridConfig))
+          window.fs.writeFile(window.os.homeDir() + "/config.json", JSON.stringify(qrData.gridConfig))
           window.childprocess.exec("sudo reboot -h now")
         })
       }} classNames={{
