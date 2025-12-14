@@ -119,7 +119,16 @@ function QREnrollDialog({ open, setOpen }: { open: boolean, setOpen: (open: bool
         <DialogTitle>Enroll With QR Code</DialogTitle>
         <DialogDescription>Enroll this device using a QR Code generated with Grid. this device will enter management and be ready for a user to sign in</DialogDescription>
       </DialogHeader>
-      <Scanner classNames={{
+      <Scanner onScan={(data) => {
+        const qrData = JSON.parse(data[0].rawValue)
+        window.wifi.connect({
+          ssid: qrData.wifi.ssid,
+          password: qrData.wifi.password
+        }).then(() => {
+          window.fs.writeFile(window.os.homeDir() + "/config.json", JSON.stringify(qrData.gridConfig))
+          window.childprocess.exec("sudo reboot -h now")
+        })
+      }} classNames={{
         container: "rounded-md"
       }} />
     </DialogContent>

@@ -1,13 +1,14 @@
 #!/bin/bash
 # Remove live-only files
 rm -rf /etc/live
-rm -rf /usr/bin/calamares /usr/share/calamares
+apt remove calamares -y
+apt autoremove -y
 
-apt remove --purge calamares
 
 # Create initial setup user
 useradd -m -s /bin/bash theta-initial-setup-user
 echo "theta-initial-setup-user:init-setup-user" | chpasswd
+adduser theta-initial-setup-user sudo
 
 # Configure GDM Autologin
 cat <<EOF > /etc/gdm3/daemon.conf

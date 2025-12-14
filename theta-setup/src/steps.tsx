@@ -237,10 +237,27 @@ export function DeviceUseStep() {
                                     ThetaOS Business
                                 </Label>
                                 <p id={`business-description`} className='text-muted-foreground text-xs'>
-                                    Sign in with your {tenantInfo?.displayName || tenantInfo?.name || "business"} account
+                                    Sign in with your business account
                                 </p>
                             </div>
                         </div>
+
+                        {tenantInfo?.id && <div className='border-input has-data-[state=checked]:border-primary/50 relative flex w-full items-center gap-2 rounded-md border p-4 shadow-xs outline-none'>
+                            <RadioGroupItem
+                                value='business'
+                                id={`business`}
+                                aria-describedby={`business-description`}
+                                className='size-5 after:absolute after:inset-0 [&_svg]:size-3'
+                            />
+                            <div className='grid grow gap-2'>
+                                <Label htmlFor={`business`} className='justify-between'>
+                                    ThetaOS Business (Signed Out)
+                                </Label>
+                                <p id={`business-description`} className='text-muted-foreground text-xs'>
+                                    IT Admin management without a business account
+                                </p>
+                            </div>
+                        </div>}
 
                         {!tenantInfo?.id && <div className='border-input has-data-[state=checked]:border-primary/50 relative flex w-full items-center gap-2 rounded-md border p-4 shadow-xs outline-none'>
                             <RadioGroupItem
@@ -272,8 +289,10 @@ export function DeviceUseStep() {
                             dontConnect: true
                         })
                         setStep(StepsEnum.account)
+                    } else if (deviceUse == "business") {
+                        setStep(StepsEnum.account)
                     } else {
-                        setStep(StepsEnum.finished)
+                        setStep(StepsEnum.userCreate)
                     }
                 }}><ArrowRightIcon /> Continue</Button>
             </CardFooter>
@@ -468,7 +487,8 @@ export function UserCreateStep() {
                     window.childprocess.exec("sudo touch /etc/gdm3/daemon.conf")
                     window.childprocess.exec("sudo bash -c 'echo \"[daemon]\" | sudo tee /etc/gdm3/daemon.conf'")
                     window.childprocess.exec("sudo bash -c 'echo \"AutomaticLoginEnable=False\" | sudo tee -a /etc/gdm3/daemon.conf'")
-                    window.fs.writeFileSync(`/home/${username}/config.json`, JSON.stringify(gridConfig))
+                    window.fs.writeFile(window.os.homeDir() + "/config.json", JSON.stringify(gridConfig))
+                    window.childprocess.exec("sudo cp ~/config.json /home/" + username + "/config.json")
                     // if (selectedMode == "personal") {
                     //     window.childprocess.exec(`sudo bash -c 'echo "{\\"dontConnect\\": true}" > /home/${username}/config.json'`)
                     // }
