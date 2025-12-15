@@ -25,6 +25,9 @@ export const policies = {
 
                             }
                         }
+                    },
+                    default: {
+                        apps: []
                     }
                 },
                 clockFormat: {
@@ -42,6 +45,9 @@ export const policies = {
                                 enum: ["12h", "24h"],
                             }
                         }
+                    },
+                    default: {
+                        format: "24h"
                     }
                 },
                 colorScheme: {
@@ -59,9 +65,11 @@ export const policies = {
                                 enum: ["prefer-dark", "default"],
                             }
                         }
+                    },
+                    default: {
+                        colorScheme: "default"
                     }
-                },
-
+                }
             }
         },
         desktop: {
@@ -93,9 +101,13 @@ export const policies = {
                                 type: "string",
                             }
                         }
+                    },
+                    default: {
+                        url: "",
+                        id: "",
+                        type: ""
                     }
-                },
-
+                }
             }
         },
         command: {
@@ -105,7 +117,7 @@ export const policies = {
             types: {
                 run: {
                     Icon: TerminalIcon,
-                    name: "Run",
+                    name: "Run Command",
                     policyname: "command.run",
                     description: "Run a command",
                     schema: {
@@ -117,9 +129,11 @@ export const policies = {
                                 type: "string",
                             }
                         }
+                    },
+                    default: {
+                        command: ""
                     }
-                },
-
+                }
             }
         }
     }

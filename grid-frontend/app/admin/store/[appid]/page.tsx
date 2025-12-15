@@ -73,10 +73,11 @@ export function AppHeader({ app }: { app: any }) {
         ],
     });
     const [selectedGroup, setSelectedGroup] = useState("");
+    const [required, setRequired] = useState("true");
     const [open, setOpen] = useState(false);
     return <div>
         <div className="page-header gap-[20px] px-[25px] pt-[15px] min-w-[0px]" style={{ justifyContent: "flex-start" }}>
-            <img src={app.icons[0].url} style={{
+            <img src={app.icon} style={{
                 width: "40px",
                 height: "40px",
             }} alt={app.name} />
@@ -114,6 +115,10 @@ export function AppHeader({ app }: { app: any }) {
                         description: group.description,
                         disabled: datahook.data["/admin/appid/" + app.id].data.some((app: any) => app.assignedToGroupId === group.id)
                     }))} />
+                    <SelectField noMargin label="Required" value={required} setValue={setRequired} options={[
+                        { id: "true", name: "Required", description: "The app will be installed on all devices in the group" },
+                        { id: "false", name: "Optional", description: "The app will be available for installation on devices in the group" }
+                    ]} />
                     <DialogFooter>
                         <DialogClose asChild>
                             <Button variant="outline" style={{ color: "var(--qu-text)" }}><XIcon size={20} />Cancel</Button>
@@ -131,6 +136,7 @@ export function AppHeader({ app }: { app: any }) {
                                     appId: app.id,
                                     name: app.name,
                                     assignedToGroupId: selectedGroup,
+                                    required: required === "true",
                                 }),
                             });
                             if (req.ok) {

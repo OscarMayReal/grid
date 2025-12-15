@@ -1,5 +1,5 @@
 import { Header } from "@/components/header";
-import { AccessSidebar, AdminSidebar } from "@/components/sidebar";
+import { AdminSidebar } from "@/components/sidebar";
 
 export const metadata = {
   title: "Quntem Grid Admin",
@@ -13,11 +13,11 @@ export default function AdminLayout({
 }>) {
   return (
     <>
-    <Header title="Quntem Grid Admin Center" />
-    <div className="page-sidebar-split">
+      <Header title="Quntem Grid Admin Center" />
+      <div className="page-sidebar-split">
         <AdminSidebar />
         {children}
-    </div>
+      </div>
     </>
   );
 }

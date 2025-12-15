@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 export type RequestObject = {
     url: string
     resType?: "json" | "text" | undefined
-    noAuth?: boolean,
+    noAuth?: boolean
 }
 
 export type ResponseObject = {
@@ -12,13 +12,13 @@ export type ResponseObject = {
     data: any
 }
 
-export function useRequests({requests, baseUrl, noAuth}: {requests: RequestObject[], baseUrl?: string, noAuth?: boolean}) {
+export function useRequests({ requests, baseUrl, noAuth }: { requests: RequestObject[], baseUrl?: string, noAuth?: boolean }) {
     var baseurl = baseUrl || process.env.NEXT_PUBLIC_BACKEND_URL!
-    const auth = useAuth({appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL!})
+    const auth = useAuth({ appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL! })
+    const [data, setData] = useState({ loaded: false, data: {}, reload })
     function reload() {
-        setData({loaded: false, data: {}, reload})
+        setData((prev) => ({ ...prev, loaded: false }))
     }
-    const [data, setData] = useState({loaded: false, data: {}, reload})
     useEffect(() => {
         if (data.loaded) return
         if (!auth.data) return
@@ -43,7 +43,7 @@ export function useRequests({requests, baseUrl, noAuth}: {requests: RequestObjec
                 }
             })
         })).then(() => {
-            setData({loaded: true, data: responses, reload})
+            setData({ loaded: true, data: responses, reload })
         })
     }, [requests, data.loaded])
     return data

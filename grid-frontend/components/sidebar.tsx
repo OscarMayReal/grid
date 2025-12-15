@@ -22,12 +22,12 @@ export const PortalSidebar = ({ ignoreSize }: { ignoreSize?: boolean }) => {
     return (
         <div className="sidebar">
             <SidebarUserItem />
-            <SidebarItem title="Home" onClick={() => { router.push("/portal") }} Icon={HomeIcon} active={path === "/portal"} index={0} />
-            <SidebarItem title="Devices" onClick={() => { router.push("/portal/devices") }} Icon={LaptopMinimalIcon} active={path === "/portal/devices"} index={1} />
-            <SidebarItem title="Store" onClick={() => { router.push("/portal/store") }} Icon={LayoutGrid} active={path === "/portal/store"} index={2} />
-            <SidebarItem title="Settings" onClick={() => { router.push("/portal/settings") }} Icon={SettingsIcon} active={path === "/portal/settings"} index={3} />
+            {/* <SidebarItem title="Home" onClick={() => { router.push("/portal") }} Icon={HomeIcon} active={path === "/portal"} index={0} /> */}
+            <SidebarItem title="Devices" onClick={() => { router.push("/portal/devices") }} Icon={LaptopMinimalIcon} active={path === "/portal/devices"} index={0} />
+            {/* <SidebarItem title="Store" onClick={() => { router.push("/portal/store") }} Icon={LayoutGrid} active={path === "/portal/store"} index={2} />
+            <SidebarItem title="Settings" onClick={() => { router.push("/portal/settings") }} Icon={SettingsIcon} active={path === "/portal/settings"} index={3} /> */}
             {auth.data?.user?.role === "ADMIN" && <Separator style={{ margin: "10px 0px" }} />}
-            {auth.data?.user?.role === "ADMIN" && <SidebarItem title="Admin" onClick={() => { router.push("/admin") }} Icon={SettingsIcon} active={false} index={5} />}
+            {auth.data?.user?.role === "ADMIN" && <SidebarItem title="Admin" onClick={() => { router.push("/admin") }} Icon={SettingsIcon} active={false} index={1} />}
         </div>
     );
 };

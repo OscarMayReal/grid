@@ -7,6 +7,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { createPolicy, deletePolicy, getDevicePolicies, getPoliciesByTenantId, getPolicyById, updatePolicy } from "./policyFunctions.ts";
 import { createApp, deleteApp, getAppById, getAppsInGroup, getInstancesOfApp } from "./appFunctions.ts";
+import { getResources } from "./keystone.ts";
+import type { EnrollmentType } from "./generated/prisma/enums.ts";
 dotenv.config();
 
 const app = express();
@@ -338,6 +340,7 @@ app.post("/admin/app", async (req, res) => {
         addedBy: req.sessionData.user.id,
         appId: req.body.appId,
         assignedToGroupId: req.body.assignedToGroupId,
+        required: req.body.required,
     });
     io.to("group_" + req.body.assignedToGroupId).emit("flatpak.sync");
     res.send(app);
@@ -368,6 +371,24 @@ app.delete("/admin/app/:id", async (req, res) => {
     const app = await deleteApp(req.params.id);
     res.send(app);
     io.to("group_" + app.assignedToGroupId).emit("flatpak.sync");
+});
+
+app.get("/info/tenant/fromdevice", async (req, res) => {
+    const device = await getDeviceById(req.query.deviceId as string);
+    if (!device || device.deviceToken !== req.query.deviceToken) {
+        return res.status(404).send({ error: "Device not found or not authorized" });
+    }
+    const resources = await getResources({ appId: process.env.NEXT_PUBLIC_APP_ID!, keystoneUrl: process.env.NEXT_PUBLIC_KEYSTONE_URL!, appSecret: process.env.NEXT_PUBLIC_APP_SECRET!, tenantId: device.tenantId });
+    res.send({ tenant: resources.tenant });
+});
+
+app.post("/portal/selfenroll", async (req, res) => {
+    const device = await createDevice({
+        tenantId: req.sessionData.tenant.id,
+        addedBy: req.sessionData.user.id,
+        enrollmentType: EnrollmentType.SELFSERVICE,
+    });
+    res.send(device);
 });
 
 //users
